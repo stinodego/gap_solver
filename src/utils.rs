@@ -1,7 +1,10 @@
 use std::collections::HashMap;
 
 /// Find the max key in a map with float values
-pub fn max_key_by_value<T>(map: &HashMap<T, f64>) -> Option<&T> {
+pub fn max_key_by_value<K, V>(map: &HashMap<K, V>) -> Option<&K>
+where
+    V: PartialOrd,
+{
     let mut map_iter = map.iter();
     let (mut max_key, mut max_value) = match map_iter.next() {
         Some(x) => x,

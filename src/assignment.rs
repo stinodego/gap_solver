@@ -3,50 +3,46 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::error::Error;
 use std::fmt;
 
-#[derive(Debug)]
-pub struct Assignment {
-    assigned: BTreeMap<&'static str, BTreeSet<&'static str>>,
-    agent_budget: BTreeMap<&'static str, f64>,
-    task_budget: BTreeMap<&'static str, f64>,
-    profit: f64,
-    config: &'static SolverConfig,
+#[derive(Hash, Ord, PartialOrd, PartialEq, Eq, Clone)]
+pub struct Assignment<'a> {
+    assigned: BTreeMap<&'a str, BTreeSet<&'a str>>,
+    agent_budget: BTreeMap<&'a str, i64>,
+    task_budget: BTreeMap<&'a str, i64>,
+    profit: i64,
+    config: &'a SolverConfig<'a>,
 }
 
-impl Assignment {
-    pub fn new(config: &'static SolverConfig) -> Self {
+impl<'a> Assignment<'a> {
+    pub fn new(config: &'a SolverConfig) -> Self {
         // Initialize empty assignment
-        let assignment = Self {
+        let mut assignment = Self {
             assigned: BTreeMap::new(),
             agent_budget: config.agent_budget.clone(),
             task_budget: config.task_budget.clone(),
-            profit: 0.0,
+            profit: 0,
             config,
         };
         // Handle agents that are already assigned
-        for (agent, tasks) in config.assigned {
+        for (agent, tasks) in &config.assigned {
             for task in tasks {
-                assignment.assign(agent, task);
+                assignment.assign(agent, task).unwrap();
             }
         }
         assignment
     }
 
     /// Assign an agent to a task
-    pub fn assign(
-        &mut self,
-        agent: &'static str,
-        task: &'static str,
-    ) -> Result<(), AssignmentError> {
+    pub fn assign(&mut self, agent: &'a str, task: &'a str) -> Result<(), AssignmentError> {
         // Check assigned tasks
         let tasks = self.assigned.entry(agent).or_insert_with(BTreeSet::new);
-        if tasks.contains(task) {
+        if tasks.contains(&task) {
             return Err(AssignmentError::new(
                 "Cannot assign agent to the same task twice.",
             ));
         }
         // Check agent budget
         let agent_spent = self.config.agent_cost[&(agent, task)];
-        let agent_budget = self.agent_budget.get_mut(agent).unwrap();
+        let agent_budget = self.agent_budget.get_mut(&agent).unwrap();
         if agent_spent > *agent_budget {
             return Err(AssignmentError::new(
                 "Agent does not have enough budget for task.",
@@ -54,7 +50,7 @@ impl Assignment {
         }
         // Check task budget
         let task_spent = self.config.task_cost[&(agent, task)];
-        let task_budget = self.task_budget.get_mut(task).unwrap();
+        let task_budget = self.task_budget.get_mut(&task).unwrap();
         if task_spent > *task_budget {
             return Err(AssignmentError::new(
                 "Task does not have enough budget for agent.",
@@ -70,6 +66,21 @@ impl Assignment {
         self.profit += profit;
 
         Ok(())
+    }
+
+    pub fn profit(&self) -> i64 {
+        self.profit
+    }
+}
+
+impl fmt::Debug for Assignment<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Assignment")
+            .field("assigned", &self.assigned)
+            .field("agent_budget", &self.agent_budget)
+            .field("task_budget", &self.task_budget)
+            .field("profit", &self.profit)
+            .finish()
     }
 }
 
