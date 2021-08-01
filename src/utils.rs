@@ -7,7 +7,6 @@ pub fn max_key_by_value<T>(map: &HashMap<T, f64>) -> Option<&T> {
         Some(x) => x,
         _ => return None,
     };
-
     for (key, value) in map_iter {
         if value > max_value {
             max_key = key;
@@ -24,4 +23,21 @@ fn test_max_key_by_value() {
     input.insert("b", 2.0);
     let result = max_key_by_value(&input);
     assert_eq!(result, Some(&"b"));
+}
+
+#[test]
+fn test_max_key_by_value_empty() {
+    let input: HashMap<u32, f64> = HashMap::new();
+    let result = max_key_by_value(&input);
+    assert_eq!(result, None);
+}
+
+#[test]
+fn test_max_key_by_value_multiple_max() {
+    let mut input = HashMap::new();
+    input.insert("a", 2.0);
+    input.insert("b", 2.0);
+    input.insert("c", 1.0);
+    let result = max_key_by_value(&input);
+    assert!(result == Some(&"a") || result == Some(&"b"));
 }
