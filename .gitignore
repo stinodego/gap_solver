@@ -1,2 +1,6 @@
-/target
+# Rust
+/target/
 Cargo.lock
+
+# IDE
+/.vscode/
