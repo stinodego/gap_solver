@@ -3,7 +3,8 @@ name: Rust
 on: [push, pull_request]
 
 jobs:
-  build:
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
