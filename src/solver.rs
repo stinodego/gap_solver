@@ -79,7 +79,7 @@ fn expand_node<'a>(
             }
         }
     }
-    if finished {
+    if finished == true {
         Err("Assignment is finished and cannot be expanded.")
     } else {
         Ok(())
