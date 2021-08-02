@@ -68,6 +68,15 @@ impl<'a> Assignment<'a> {
         Ok(())
     }
 
+    pub fn agent_tasks(&self, agent: &'a str) -> Option<&BTreeSet<&'a str>> {
+        self.assigned.get(agent)
+    }
+    pub fn agent_budget(&self, agent: &'a str) -> i64 {
+        self.agent_budget[agent]
+    }
+    pub fn task_budget(&self, task: &'a str) -> i64 {
+        self.task_budget[task]
+    }
     pub fn profit(&self) -> i64 {
         self.profit
     }

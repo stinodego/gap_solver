@@ -6,17 +6,25 @@ use std::collections::HashMap;
 pub fn solve(config: &SolverConfig) {
     let mut open_set: HashMap<Assignment, i64> = init_open_set(config);
     let mut closed_set: HashMap<Assignment, i64> = HashMap::new();
+    let mut finished_set: HashMap<Assignment, i64> = HashMap::new();
 
     while !open_set.is_empty() {
         // Explore the most promising node
         let current = utils::max_key_by_value(&open_set).unwrap().clone();
 
-        // Move current node from open set to the closet set
+        // Remove current node from open set
         let current_profit = open_set.remove(&current).unwrap();
-        closed_set.insert(current, current_profit);
 
-        // Determine next steps
-        println!("{:#?}", closed_set)
+        // Determine all possible next assignments
+        match expand_node(&current, config, &mut open_set, &closed_set) {
+            Ok(_) => {}
+            Err(_) => {
+                finished_set.insert(current.clone(), current_profit);
+            }
+        }
+
+        // Move node to the closed set
+        closed_set.insert(current, current_profit);
     }
 }
 
@@ -29,27 +37,49 @@ fn init_open_set<'a>(config: &'a SolverConfig) -> HashMap<Assignment<'a>, i64> {
     open_set
 }
 
-// /// Determine all possible new tasks for an agent for the given assignment
-// fn possible_tasks(
-//     agent: &'static str,
-//     assignment: &Assignment,
-//     config: &'static SolverConfig,
-// ) -> Vec<&'static str> {
-//     // Calculate remaining budget
-//     let budget = calc_agent_budget(agent, assignment, config);
-//     if budget == 0.0 {
-//         return Vec::new();
-//     };
-
-//     config
-//         .tasks
-//         .iter()
-//         // Agent cannot be assigned to the same task twice
-//         .filter(|t| !assignment[agent].contains(*t))
-//         // Tasks within agent budget
-//         .filter(|t| config.agent_cost[&(agent, **t)] <= budget)
-//         // Tasks with enough budget for agent
-//         .filter(|t| config.agent_cost[&(agent, **t)] <= budget)
-//         .copied()
-//         .collect()
-// }
+/// Determine all possible new tasks for an agent for the given assignment
+fn expand_node<'a>(
+    assignment: &Assignment<'a>,
+    config: &'a SolverConfig,
+    open_set: &mut HashMap<Assignment<'a>, i64>,
+    closed_set: &HashMap<Assignment, i64>,
+) -> Result<(), &'a str> {
+    let mut finished = true;
+    for agent in config.agents {
+        // Determine agent budget
+        let agent_budget = assignment.agent_budget(agent);
+        if agent_budget == 0 {
+            continue;
+        };
+        // Determine all possible tasks for the agent
+        let assigned = assignment.agent_tasks(agent);
+        let possible_tasks = config
+            .tasks
+            .iter()
+            // Agent cannot be assigned to the same task twice
+            .filter(|t| match assigned {
+                None => true,
+                Some(tasks) => !tasks.contains(*t),
+            })
+            // Tasks within agent budget
+            .filter(|t| config.agent_cost[&(agent, **t)] <= agent_budget)
+            // Tasks with enough budget for agent
+            .filter(|t| config.task_cost[&(agent, **t)] <= assignment.task_budget(t))
+            .copied();
+        // Create assignments for each task
+        for t in possible_tasks {
+            let next = assignment.clone();
+            next.assign(agent, t);
+            if !closed_set.contains_key(&next) {
+                let profit = next.profit();
+                open_set.insert(next, profit);
+                finished = false;
+            }
+        }
+    }
+    if finished == true {
+        Err("Assignment is finished.")
+    } else {
+        Ok(())
+    }
+}
