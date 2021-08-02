@@ -55,5 +55,8 @@ fn main() {
 
     println!("{:?}", config);
 
-    solver::solve(&config);
+    let solutions = solver::solve(&config);
+    for assignment in solutions {
+        println!("{}", assignment)
+    }
 }
