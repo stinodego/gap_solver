@@ -8,5 +8,6 @@ repository = "https://github.com/stinodego/gap_solver"
 license = "MIT"
 keywords = ["assignment", "search", "graph", "mathematics", "algorithm"]
 categories = ["mathematics", "algorithms"]
+include = ["/src/", "README.md"]
 
 [dependencies]
