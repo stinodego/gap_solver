@@ -1,6 +1,7 @@
 # gap_solver
 
 [![build](https://github.com/stinodego/gap_solver/actions/workflows/build.yml/badge.svg)](https://github.com/stinodego/gap_solver/actions/workflows/build.yml)
+[![codecov](https://codecov.io/gh/stinodego/gap_solver/branch/master/graph/badge.svg)](https://codecov.io/gh/stinodego/gap_solver)
 
 _Generalized Assignment Problem Solver_
 
