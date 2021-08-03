@@ -1,6 +1,6 @@
 # gap_solver
 
-![Build](https://github.com/stinodego/gap_solver/actions/workflows/rust.yml/badge.svg)
+[![build](https://github.com/stinodego/gap_solver/actions/workflows/build.yml/badge.svg)](https://github.com/stinodego/gap_solver/actions/workflows/build.yml)
 
 _Generalized Assignment Problem Solver_
 
