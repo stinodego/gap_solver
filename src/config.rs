@@ -64,10 +64,20 @@ impl<'a> SolverConfig<'a> {
     pub fn set_task_cost(&mut self, cost: BTreeMap<(&'a str, &'a str), i64>) {
         self.task_cost = cost;
     }
-    pub fn set_profit(&mut self, profit: BTreeMap<(&'a str, &'a str), i64>) {
-        self.profit = profit;
+    pub fn set_profit<T>(&mut self, profit: T)
+    where
+        T: IntoIterator<Item = ((&'a str, &'a str), i64)>,
+    {
+        self.profit = profit.into_iter().collect();
     }
-    pub fn set_assigned(&mut self, assigned: BTreeMap<&'a str, BTreeSet<&'a str>>) {
-        self.assigned = assigned;
+    pub fn set_assigned<T, U>(&mut self, assigned: T)
+    where
+        T: IntoIterator<Item = (&'a str, U)>,
+        U: IntoIterator<Item = &'a str>,
+    {
+        self.assigned = assigned
+            .into_iter()
+            .map(|(agent, tasks)| (agent, tasks.into_iter().collect()))
+            .collect();
     }
 }
