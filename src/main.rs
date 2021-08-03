@@ -3,40 +3,20 @@ use gap_solver::solver;
 use std::collections::{BTreeMap, BTreeSet};
 
 fn main() {
-    let mut config = SolverConfig::new();
+    let agents = vec!["a", "b", "c"];
+    let tasks = vec!["t1", "t2"];
+    let mut config = SolverConfig::new(agents, tasks);
 
-    let mut agents = BTreeSet::new();
-    agents.insert("a");
-    agents.insert("b");
-    agents.insert("c");
-    config.set_agents(agents);
+    // let mut agent_budget = BTreeMap::new();
+    // agent_budget.insert("a", 1);
+    // agent_budget.insert("b", 2);
+    // agent_budget.insert("c", 1);
+    // config.set_agent_budget(agent_budget);
 
-    let mut tasks = BTreeSet::new();
-    tasks.insert("t1");
-    tasks.insert("t2");
-    config.set_tasks(tasks);
-
-    let mut agent_budget = BTreeMap::new();
-    agent_budget.insert("a", 1);
-    agent_budget.insert("b", 2);
-    agent_budget.insert("c", 1);
-    config.set_agent_budget(agent_budget);
-
-    let mut task_budget = BTreeMap::new();
-    task_budget.insert("t1", 2);
-    task_budget.insert("t2", 2);
-    config.set_task_budget(task_budget);
-
-    let mut agent_cost = BTreeMap::new();
-    let mut task_cost = BTreeMap::new();
-    for a in &config.agents {
-        for t in &config.tasks {
-            agent_cost.insert((*a, *t), 1);
-            task_cost.insert((*a, *t), 1);
-        }
-    }
-    config.set_agent_cost(agent_cost);
-    config.set_task_cost(task_cost);
+    // let mut task_budget = BTreeMap::new();
+    // task_budget.insert("t1", 2);
+    // task_budget.insert("t2", 2);
+    // config.set_task_budget(task_budget);
 
     let mut profit = BTreeMap::new();
     profit.insert(("a", "t1"), 3);

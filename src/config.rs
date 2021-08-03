@@ -15,25 +15,43 @@ pub struct SolverConfig<'a> {
 }
 
 impl<'a> SolverConfig<'a> {
-    pub fn new() -> Self {
+    pub fn new<T>(agents: T, tasks: T) -> Self
+    where
+        T: IntoIterator<Item = &'a str>,
+    {
+        let agents: BTreeSet<&'a str> = agents.into_iter().collect();
+        let tasks: BTreeSet<&'a str> = tasks.into_iter().collect();
+
+        // By default, each agent does one task, each task is done by one agent
+        let mut agent_budget = BTreeMap::new();
+        for a in &agents {
+            agent_budget.insert(*a, 1);
+        }
+        let mut task_budget = BTreeMap::new();
+        for t in &tasks {
+            task_budget.insert(*t, 1);
+        }
+        let mut agent_cost = BTreeMap::new();
+        let mut task_cost = BTreeMap::new();
+        for a in &agents {
+            for t in &tasks {
+                agent_cost.insert((*a, *t), 1);
+                task_cost.insert((*a, *t), 1);
+            }
+        }
+
         Self {
-            agents: BTreeSet::new(),
-            tasks: BTreeSet::new(),
-            agent_budget: BTreeMap::new(),
-            agent_cost: BTreeMap::new(),
-            task_budget: BTreeMap::new(),
-            task_cost: BTreeMap::new(),
+            agents,
+            tasks,
+            agent_budget,
+            agent_cost,
+            task_budget,
+            task_cost,
             profit: BTreeMap::new(),
             assigned: BTreeMap::new(),
         }
     }
 
-    pub fn set_agents(&mut self, agents: BTreeSet<&'a str>) {
-        self.agents = agents;
-    }
-    pub fn set_tasks(&mut self, tasks: BTreeSet<&'a str>) {
-        self.tasks = tasks;
-    }
     pub fn set_agent_budget(&mut self, budget: BTreeMap<&'a str, i64>) {
         self.agent_budget = budget;
     }
