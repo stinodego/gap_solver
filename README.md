@@ -1,6 +1,7 @@
 # gap_solver
 
 [![crates.io](https://img.shields.io/crates/v/gap_solver.svg)](https://crates.io/crates/gap_solver)
+[![docs](https://docs.rs/gap_solver/badge.svg)](https://docs.rs/gap_solver/latest/gap_solver/)
 [![build](https://github.com/stinodego/gap_solver/actions/workflows/build.yml/badge.svg)](https://github.com/stinodego/gap_solver/actions/workflows/build.yml)
 [![codecov](https://codecov.io/gh/stinodego/gap_solver/branch/master/graph/badge.svg)](https://codecov.io/gh/stinodego/gap_solver)
 
