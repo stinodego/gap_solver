@@ -1,4 +1,9 @@
-# Generalized Assignment Problem Solver
+# gap_solver
+
+[![build](https://github.com/stinodego/gap_solver/actions/workflows/build.yml/badge.svg)](https://github.com/stinodego/gap_solver/actions/workflows/build.yml)
+[![codecov](https://codecov.io/gh/stinodego/gap_solver/branch/master/graph/badge.svg)](https://codecov.io/gh/stinodego/gap_solver)
+
+_Generalized Assignment Problem Solver_
 
 This code aims to implement an efficient solver for the generalized assignment problem.
 

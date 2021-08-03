@@ -1,4 +1,4 @@
-name: Rust
+name: build
 
 on: [push, pull_request]
 
@@ -53,7 +53,7 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout sources
+      - name: Check out sources
         uses: actions/checkout@v2
 
       - name: Install stable toolchain
@@ -67,3 +67,45 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out sources
+        uses: actions/checkout@v2
+
+      - name: Install nightly toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+
+      - name: Clean previous Cargo runs
+        uses: actions-rs/cargo@v1
+        with:
+          command: clean
+
+      - name: Run cargo test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --all-features --no-fail-fast
+        env:
+          CARGO_INCREMENTAL: '0'
+          RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests'
+          RUSTDOCFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests'
+
+      - name: Generate coverage report
+        uses: actions-rs/grcov@v0.1
+        with:
+          config: .github/config/grcov.yml
+
+      - name: Upload report to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          files: ./lcov.info
+          # flags: unittests # optional
+          # name: codecov-umbrella # optional
+          fail_ci_if_error: true # optional (default = false)
+          verbose: true # optional (default = false)
