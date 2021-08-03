@@ -3,24 +3,35 @@ use std::fmt::Debug;
 
 /// Define the assignment problem configuration
 #[derive(Debug, Default, Hash, Ord, PartialOrd, Eq, PartialEq)]
-pub struct SolverConfig<'a> {
-    pub agents: BTreeSet<&'a str>,
-    pub tasks: BTreeSet<&'a str>,
-    pub agent_budget: BTreeMap<&'a str, i64>,
-    pub agent_cost: BTreeMap<(&'a str, &'a str), i64>,
-    pub task_budget: BTreeMap<&'a str, i64>,
-    pub task_cost: BTreeMap<(&'a str, &'a str), i64>,
-    pub profit: BTreeMap<(&'a str, &'a str), i64>,
-    pub assigned: BTreeMap<&'a str, BTreeSet<&'a str>>,
+pub struct SolverConfig<A, T>
+where
+    A: Ord + Copy,
+    T: Ord + Copy,
+{
+    pub agents: BTreeSet<A>,
+    pub tasks: BTreeSet<T>,
+    pub agent_budget: BTreeMap<A, i64>,
+    pub task_budget: BTreeMap<T, i64>,
+    pub agent_cost: BTreeMap<(A, T), i64>,
+    pub task_cost: BTreeMap<(A, T), i64>,
+    pub profit: BTreeMap<(A, T), i64>,
+    pub assigned: BTreeMap<A, BTreeSet<T>>,
 }
 
-impl<'a> SolverConfig<'a> {
-    pub fn new<T>(agents: T, tasks: T) -> Self
+impl<A, T> SolverConfig<A, T>
+where
+    A: Ord + Copy,
+    T: Ord + Copy,
+{
+    pub fn new<C, D>(agents: C, tasks: D) -> Self
     where
-        T: IntoIterator<Item = &'a str>,
+        C: IntoIterator<Item = A>,
+        D: IntoIterator<Item = T>,
+        A: Ord + Copy,
+        T: Ord + Copy,
     {
-        let agents: BTreeSet<&'a str> = agents.into_iter().collect();
-        let tasks: BTreeSet<&'a str> = tasks.into_iter().collect();
+        let agents: BTreeSet<A> = agents.into_iter().collect();
+        let tasks: BTreeSet<T> = tasks.into_iter().collect();
 
         // By default, each agent does one task, each task is done by one agent
         let mut agent_budget = BTreeMap::new();
@@ -52,28 +63,34 @@ impl<'a> SolverConfig<'a> {
         }
     }
 
-    pub fn set_agent_budget(&mut self, budget: BTreeMap<&'a str, i64>) {
-        self.agent_budget = budget;
+    pub fn set_agent_budget<C>(&mut self, budget: C)
+    where
+        C: IntoIterator<Item = (A, i64)>,
+    {
+        self.agent_budget = budget.into_iter().collect();
     }
-    pub fn set_agent_cost(&mut self, cost: BTreeMap<(&'a str, &'a str), i64>) {
+    pub fn set_task_budget<C>(&mut self, budget: C)
+    where
+        C: IntoIterator<Item = (T, i64)>,
+    {
+        self.task_budget = budget.into_iter().collect();
+    }
+    pub fn set_agent_cost(&mut self, cost: BTreeMap<(A, T), i64>) {
         self.agent_cost = cost;
     }
-    pub fn set_task_budget(&mut self, budget: BTreeMap<&'a str, i64>) {
-        self.task_budget = budget;
-    }
-    pub fn set_task_cost(&mut self, cost: BTreeMap<(&'a str, &'a str), i64>) {
+    pub fn set_task_cost(&mut self, cost: BTreeMap<(A, T), i64>) {
         self.task_cost = cost;
     }
-    pub fn set_profit<T>(&mut self, profit: T)
+    pub fn set_profit<C>(&mut self, profit: C)
     where
-        T: IntoIterator<Item = ((&'a str, &'a str), i64)>,
+        C: IntoIterator<Item = ((A, T), i64)>,
     {
         self.profit = profit.into_iter().collect();
     }
-    pub fn set_assigned<T, U>(&mut self, assigned: T)
+    pub fn set_assigned<C, D>(&mut self, assigned: C)
     where
-        T: IntoIterator<Item = (&'a str, U)>,
-        U: IntoIterator<Item = &'a str>,
+        C: IntoIterator<Item = (A, D)>,
+        D: IntoIterator<Item = T>,
     {
         self.assigned = assigned
             .into_iter()

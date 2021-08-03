@@ -1,18 +1,28 @@
 use crate::config::SolverConfig;
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
+use std::fmt::Debug;
+use std::hash::Hash;
 
 #[derive(Hash, Ord, PartialOrd, PartialEq, Eq, Clone)]
-pub struct Assignment<'a> {
-    assigned: BTreeMap<&'a str, BTreeSet<&'a str>>,
-    agent_budget: BTreeMap<&'a str, i64>,
-    task_budget: BTreeMap<&'a str, i64>,
+pub struct Assignment<'a, A, T>
+where
+    A: Hash + Ord + Copy + Debug,
+    T: Hash + Ord + Copy + Debug,
+{
+    assigned: BTreeMap<A, BTreeSet<T>>,
+    agent_budget: BTreeMap<A, i64>,
+    task_budget: BTreeMap<T, i64>,
     profit: i64,
-    config: &'a SolverConfig<'a>,
+    config: &'a SolverConfig<A, T>,
 }
 
-impl<'a> Assignment<'a> {
-    pub fn new(config: &'a SolverConfig) -> Self {
+impl<'a, A, T> Assignment<'a, A, T>
+where
+    A: Hash + Ord + Copy + Debug,
+    T: Hash + Ord + Copy + Debug,
+{
+    pub fn new(config: &'a SolverConfig<A, T>) -> Self {
         // Initialize empty assignment
         let mut assignment = Self {
             assigned: BTreeMap::new(),
@@ -24,14 +34,14 @@ impl<'a> Assignment<'a> {
         // Handle agents that are already assigned
         for (agent, tasks) in &config.assigned {
             for task in tasks {
-                assignment.assign(agent, task).unwrap();
+                assignment.assign(*agent, *task).unwrap();
             }
         }
         assignment
     }
 
     /// Assign an agent to a task
-    pub fn assign(&mut self, agent: &'a str, task: &'a str) -> Result<(), &'a str> {
+    pub fn assign(&mut self, agent: A, task: T) -> Result<(), &str> {
         // Check assigned tasks
         let tasks = self.assigned.entry(agent).or_insert_with(BTreeSet::new);
         if tasks.contains(&task) {
@@ -61,16 +71,16 @@ impl<'a> Assignment<'a> {
         Ok(())
     }
 
-    pub fn assigned(&self) -> &BTreeMap<&'a str, BTreeSet<&'a str>> {
+    pub fn assigned(&self) -> &BTreeMap<A, BTreeSet<T>> {
         &self.assigned
     }
-    pub fn agent_tasks(&self, agent: &'a str) -> Option<&BTreeSet<&'a str>> {
+    pub fn agent_tasks(&self, agent: &A) -> Option<&BTreeSet<T>> {
         self.assigned.get(agent)
     }
-    pub fn agent_budget(&self, agent: &'a str) -> i64 {
+    pub fn agent_budget(&self, agent: &A) -> i64 {
         self.agent_budget[agent]
     }
-    pub fn task_budget(&self, task: &'a str) -> i64 {
+    pub fn task_budget(&self, task: &T) -> i64 {
         self.task_budget[task]
     }
     pub fn profit(&self) -> i64 {
@@ -78,13 +88,21 @@ impl<'a> Assignment<'a> {
     }
 }
 
-impl fmt::Display for Assignment<'_> {
+impl<'a, A, T> fmt::Display for Assignment<'a, A, T>
+where
+    A: Hash + Ord + Copy + Debug,
+    T: Hash + Ord + Copy + Debug,
+{
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Assignment {{ {:?}: {} }}", self.assigned, self.profit)
     }
 }
 
-impl fmt::Debug for Assignment<'_> {
+impl<'a, A, T> Debug for Assignment<'a, A, T>
+where
+    A: Hash + Ord + Copy + Debug,
+    T: Hash + Ord + Copy + Debug,
+{
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Assignment")
             .field("assigned", &self.assigned)

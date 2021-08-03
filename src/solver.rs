@@ -2,11 +2,17 @@ use crate::assignment::Assignment;
 use crate::config::SolverConfig;
 use crate::utils;
 use std::collections::HashMap;
+use std::fmt::Debug;
+use std::hash::Hash;
 
-pub fn solve<'a>(config: &'a SolverConfig) -> Vec<Assignment<'a>> {
-    let mut open_set: HashMap<Assignment, i64> = init_open_set(config);
-    let mut closed_set: HashMap<Assignment, i64> = HashMap::new();
-    let mut finished_set: Vec<Assignment> = Vec::new();
+pub fn solve<A, T>(config: &SolverConfig<A, T>) -> Vec<Assignment<A, T>>
+where
+    A: Hash + Ord + Copy + Debug,
+    T: Hash + Ord + Copy + Debug,
+{
+    let mut open_set: HashMap<Assignment<A, T>, i64> = init_open_set(config);
+    let mut closed_set: HashMap<Assignment<A, T>, i64> = HashMap::new();
+    let mut finished_set: Vec<Assignment<A, T>> = Vec::new();
 
     while !open_set.is_empty() {
         // Explore the most promising node
@@ -30,7 +36,11 @@ pub fn solve<'a>(config: &'a SolverConfig) -> Vec<Assignment<'a>> {
 }
 
 /// Initialize set of assignments to explore
-fn init_open_set<'a>(config: &'a SolverConfig) -> HashMap<Assignment<'a>, i64> {
+fn init_open_set<A, T>(config: &SolverConfig<A, T>) -> HashMap<Assignment<A, T>, i64>
+where
+    A: Hash + Ord + Copy + Debug,
+    T: Hash + Ord + Copy + Debug,
+{
     let mut open_set = HashMap::new();
     let start = Assignment::new(config);
     let start_profit = start.profit();
@@ -39,12 +49,16 @@ fn init_open_set<'a>(config: &'a SolverConfig) -> HashMap<Assignment<'a>, i64> {
 }
 
 /// Determine all possible new tasks for an agent for the given assignment
-fn expand_node<'a>(
-    assignment: &Assignment<'a>,
-    config: &'a SolverConfig,
-    open_set: &mut HashMap<Assignment<'a>, i64>,
-    closed_set: &HashMap<Assignment, i64>,
-) -> Result<(), &'a str> {
+fn expand_node<'a, A, T>(
+    assignment: &Assignment<'a, A, T>,
+    config: &SolverConfig<A, T>,
+    open_set: &mut HashMap<Assignment<'a, A, T>, i64>,
+    closed_set: &HashMap<Assignment<A, T>, i64>,
+) -> Result<(), &'a str>
+where
+    A: Hash + Ord + Copy + Debug,
+    T: Hash + Ord + Copy + Debug,
+{
     let mut finished = true;
     for agent in &config.agents {
         // Determine agent budget
@@ -72,7 +86,7 @@ fn expand_node<'a>(
         for t in possible_tasks {
             finished = false;
             let mut next = assignment.clone();
-            next.assign(agent, t).unwrap();
+            next.assign(*agent, t).unwrap();
             if !closed_set.contains_key(&next) {
                 let profit = next.profit();
                 open_set.insert(next, profit);
