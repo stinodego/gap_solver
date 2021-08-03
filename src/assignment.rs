@@ -11,8 +11,8 @@ where
     T: Hash + Ord + Copy + Debug,
 {
     assigned: BTreeMap<A, BTreeSet<T>>,
-    agent_budget: BTreeMap<A, i64>,
-    task_budget: BTreeMap<T, i64>,
+    agent_budget: BTreeMap<A, u32>,
+    task_budget: BTreeMap<T, u32>,
     profit: i64,
     config: &'a SolverConfig<A, T>,
 }
@@ -77,10 +77,10 @@ where
     pub fn agent_tasks(&self, agent: &A) -> Option<&BTreeSet<T>> {
         self.assigned.get(agent)
     }
-    pub fn agent_budget(&self, agent: &A) -> i64 {
+    pub fn agent_budget(&self, agent: &A) -> u32 {
         self.agent_budget[agent]
     }
-    pub fn task_budget(&self, task: &T) -> i64 {
+    pub fn task_budget(&self, task: &T) -> u32 {
         self.task_budget[task]
     }
     pub fn profit(&self) -> i64 {

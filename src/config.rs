@@ -10,10 +10,10 @@ where
 {
     pub agents: BTreeSet<A>,
     pub tasks: BTreeSet<T>,
-    pub agent_budget: BTreeMap<A, i64>,
-    pub task_budget: BTreeMap<T, i64>,
-    pub agent_cost: BTreeMap<(A, T), i64>,
-    pub task_cost: BTreeMap<(A, T), i64>,
+    pub agent_budget: BTreeMap<A, u32>,
+    pub task_budget: BTreeMap<T, u32>,
+    pub agent_cost: BTreeMap<(A, T), u32>,
+    pub task_cost: BTreeMap<(A, T), u32>,
     pub profit: BTreeMap<(A, T), i64>,
     pub assigned: BTreeMap<A, BTreeSet<T>>,
 }
@@ -65,20 +65,20 @@ where
 
     pub fn set_agent_budget<C>(&mut self, budget: C)
     where
-        C: IntoIterator<Item = (A, i64)>,
+        C: IntoIterator<Item = (A, u32)>,
     {
         self.agent_budget = budget.into_iter().collect();
     }
     pub fn set_task_budget<C>(&mut self, budget: C)
     where
-        C: IntoIterator<Item = (T, i64)>,
+        C: IntoIterator<Item = (T, u32)>,
     {
         self.task_budget = budget.into_iter().collect();
     }
-    pub fn set_agent_cost(&mut self, cost: BTreeMap<(A, T), i64>) {
+    pub fn set_agent_cost(&mut self, cost: BTreeMap<(A, T), u32>) {
         self.agent_cost = cost;
     }
-    pub fn set_task_cost(&mut self, cost: BTreeMap<(A, T), i64>) {
+    pub fn set_task_cost(&mut self, cost: BTreeMap<(A, T), u32>) {
         self.task_cost = cost;
     }
     pub fn set_profit<C>(&mut self, profit: C)
