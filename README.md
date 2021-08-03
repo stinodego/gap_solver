@@ -1,4 +1,8 @@
-# Generalized Assignment Problem Solver
+# gap_solver
+
+![Build](https://github.com/stinodego/gap_solver/actions/workflows/rust.yml/badge.svg)
+
+_Generalized Assignment Problem Solver_
 
 This code aims to implement an efficient solver for the generalized assignment problem.
 
