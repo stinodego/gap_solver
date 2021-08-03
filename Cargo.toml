@@ -1,6 +1,12 @@
 [package]
 name = "gap_solver"
 version = "0.1.0"
+authors = ["Stijn de Gooijer"]
 edition = "2018"
+description = "A solver for the generalized assignment problem."
+repository = "https://github.com/stinodego/gap_solver"
+license = "MIT"
+keywords = ["assignment", "search", "graph", "mathematics", "algorithm"]
+categories = ["mathematics", "algorithms"]
 
 [dependencies]
