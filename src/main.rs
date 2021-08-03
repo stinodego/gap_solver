@@ -1,5 +1,5 @@
-use gap_solver::config::SolverConfig;
-use gap_solver::solver;
+use gap_solver::solve;
+use gap_solver::SolverConfig;
 use std::collections::HashMap;
 
 fn main() {
@@ -33,7 +33,7 @@ fn main() {
 
     println!("{:?}", config);
 
-    let solutions = solver::solve(&config);
+    let solutions = solve(&config);
     for assignment in solutions {
         println!("{}", assignment)
     }

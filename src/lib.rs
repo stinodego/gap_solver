@@ -1,4 +1,7 @@
-pub mod assignment;
-pub mod config;
-pub mod solver;
-pub mod utils;
+mod assignment;
+mod config;
+mod solver;
+mod utils;
+
+pub use crate::config::SolverConfig;
+pub use crate::solver::solve;
