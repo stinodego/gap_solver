@@ -1,3 +1,5 @@
+//! A solver for the generalized assignment problem.
+
 mod assignment;
 mod config;
 mod solver;

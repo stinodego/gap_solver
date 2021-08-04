@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use std::fmt::Debug;
 use std::hash::Hash;
 
+/// Solve the assignment problem specified in the given config
 pub fn solve<A, T>(config: &SolverConfig<A, T>) -> Vec<Assignment<A, T>>
 where
     A: Hash + Ord + Copy + Debug,
