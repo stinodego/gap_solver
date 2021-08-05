@@ -2,9 +2,9 @@ use crate::config::SolverConfig;
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
 use std::fmt::Debug;
-use std::hash::Hash;
+use std::hash::{Hash, Hasher};
 
-#[derive(Hash, Ord, PartialOrd, PartialEq, Eq, Clone)]
+#[derive(Ord, PartialOrd, PartialEq, Eq, Clone)]
 pub struct Assignment<'a, A, T>
 where
     A: Hash + Ord + Copy + Debug,
@@ -85,6 +85,16 @@ where
     }
     pub fn profit(&self) -> i64 {
         self.profit
+    }
+}
+
+impl<'a, A, T> Hash for Assignment<'a, A, T>
+where
+    A: Hash + Ord + Copy + Debug,
+    T: Hash + Ord + Copy + Debug,
+{
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.assigned.hash(state);
     }
 }
 

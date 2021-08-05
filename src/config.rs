@@ -3,7 +3,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::fmt::Debug;
 
 /// Define the assignment problem configuration
-#[derive(Debug, Default, Hash, Ord, PartialOrd, Eq, PartialEq)]
+#[derive(Debug, Default, Ord, PartialOrd, Eq, PartialEq)]
 pub struct SolverConfig<A, T>
 where
     A: Ord + Copy + Debug,
