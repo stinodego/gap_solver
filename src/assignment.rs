@@ -4,7 +4,7 @@ use std::fmt;
 use std::fmt::Debug;
 use std::hash::{Hash, Hasher};
 
-#[derive(Eq, PartialEq, Clone)]
+#[derive(Clone)]
 pub struct Assignment<'a, A, T>
 where
     A: Hash + Ord + Copy + Debug,
@@ -88,6 +88,8 @@ where
     }
 }
 
+/// Only the assignment of agents to tasks matters here;
+/// the rest can be derived from the problem specification
 impl<'a, A, T> Hash for Assignment<'a, A, T>
 where
     A: Hash + Ord + Copy + Debug,
@@ -96,6 +98,24 @@ where
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.assigned.hash(state);
     }
+}
+
+/// Only the assignment of agents to tasks matters here;
+/// the rest can be derived from the problem specification
+impl<'a, A, T> PartialEq for Assignment<'a, A, T>
+where
+    A: Hash + Ord + Copy + Debug,
+    T: Hash + Ord + Copy + Debug,
+{
+    fn eq(&self, other: &Self) -> bool {
+        self.assigned == other.assigned
+    }
+}
+impl<'a, A, T> Eq for Assignment<'a, A, T>
+where
+    A: Hash + Ord + Copy + Debug,
+    T: Hash + Ord + Copy + Debug,
+{
 }
 
 impl<'a, A, T> fmt::Display for Assignment<'a, A, T>

@@ -4,11 +4,11 @@ use std::fmt::Debug;
 use std::hash::Hash;
 
 /// Define the assignment problem configuration
-#[derive(Eq, PartialEq, Debug)]
+#[derive(Debug)]
 pub struct SolverConfig<A, T>
 where
-    A: Hash + Eq + Copy + Debug,
-    T: Hash + Eq + Copy + Debug,
+    A: Hash + Ord + Copy + Debug,
+    T: Hash + Ord + Copy + Debug,
 {
     agents: HashSet<A>,
     tasks: HashSet<T>,
@@ -22,8 +22,8 @@ where
 
 impl<A, T> SolverConfig<A, T>
 where
-    A: Hash + Eq + Copy + Debug,
-    T: Hash + Eq + Copy + Debug,
+    A: Hash + Ord + Copy + Debug,
+    T: Hash + Ord + Copy + Debug,
 {
     /// Initialize a new assignment problem specification.
     pub fn new<C, D>(agents: C, tasks: D) -> Self
