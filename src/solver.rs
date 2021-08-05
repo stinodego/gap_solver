@@ -61,7 +61,7 @@ where
     T: Hash + Ord + Copy + Debug,
 {
     let mut finished = true;
-    for agent in &config.agents {
+    for agent in config.agents() {
         // Determine agent budget
         let agent_budget = assignment.agent_budget(agent);
         if agent_budget == 0 {
@@ -70,24 +70,24 @@ where
         // Determine all possible tasks for the agent
         let assigned = assignment.agent_tasks(agent);
         let possible_tasks = config
-            .tasks
+            .tasks()
             .iter()
+            .copied()
             // Agent cannot be assigned to the same task twice
             .filter(|t| match assigned {
                 None => true,
-                Some(tasks) => !tasks.contains(*t),
+                Some(tasks) => !tasks.contains(t),
             })
             // Tasks within agent budget
-            .filter(|t| config.agent_cost[&(*agent, **t)] <= agent_budget)
+            .filter(|t| config.agent_cost(agent, t) <= agent_budget)
             // Tasks with enough budget for agent
-            .filter(|t| config.task_cost[&(*agent, **t)] <= assignment.task_budget(t))
-            .copied();
+            .filter(|t| config.task_cost(agent, t) <= assignment.task_budget(t));
 
         // Create assignments for each task
         for t in possible_tasks {
             finished = false;
             let mut next = assignment.clone();
-            next.assign(*agent, t).unwrap();
+            next.assign(agent, &t).unwrap();
             if !closed_set.contains_key(&next) {
                 let profit = next.profit();
                 open_set.insert(next, profit);

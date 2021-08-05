@@ -11,12 +11,12 @@ fn main() {
     agent_budget.insert('a', 1);
     agent_budget.insert('b', 2);
     agent_budget.insert('c', 1);
-    config.set_agent_budget(agent_budget);
+    config.set_agent_budgets(agent_budget);
 
     let mut task_budget = HashMap::new();
     task_budget.insert(1, 2);
     task_budget.insert(2, 2);
-    config.set_task_budget(task_budget);
+    config.set_task_budgets(task_budget);
 
     let mut profit = HashMap::new();
     profit.insert(('a', 1), 3);
