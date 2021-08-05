@@ -1,4 +1,4 @@
-use crate::config::GapSpec;
+use crate::spec::GapSpec;
 use num::Num;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::fmt;
@@ -14,10 +14,10 @@ where
     P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
 {
     assigned: BTreeMap<A, BTreeSet<T>>,
-    agent_budget: HashMap<A, u32>,
-    task_budget: HashMap<T, u32>,
+    agent_budgets: HashMap<A, u32>,
+    task_budgets: HashMap<T, u32>,
     profit: P,
-    config: &'a GapSpec<A, T, P>,
+    spec: &'a GapSpec<A, T, P>,
 }
 
 impl<'a, A, T, P> Assignment<'a, A, T, P>
@@ -26,17 +26,17 @@ where
     T: Hash + Ord + Copy + Debug,
     P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
 {
-    pub fn new(config: &'a GapSpec<A, T, P>) -> Self {
+    pub fn from_spec(spec: &'a GapSpec<A, T, P>) -> Self {
         // Initialize empty assignment
         let mut assignment = Self {
             assigned: BTreeMap::new(),
-            agent_budget: config.agent_budgets().clone(),
-            task_budget: config.task_budgets().clone(),
+            agent_budgets: spec.agent_budgets().clone(),
+            task_budgets: spec.task_budgets().clone(),
             profit: P::zero(),
-            config,
+            spec,
         };
         // Handle agents that are already assigned
-        for (agent, tasks) in config.assigned() {
+        for (agent, tasks) in spec.assigned() {
             for task in tasks {
                 assignment.assign(agent, task).unwrap();
             }
@@ -52,14 +52,14 @@ where
             return Err("Cannot assign agent to the same task twice.");
         }
         // Check agent budget
-        let agent_spent = self.config.agent_cost(agent, task);
-        let agent_budget = self.agent_budget.get_mut(agent).unwrap();
+        let agent_spent = self.spec.agent_cost(agent, task);
+        let agent_budget = self.agent_budgets.get_mut(agent).unwrap();
         if agent_spent > *agent_budget {
             return Err("Agent does not have enough budget for task.");
         }
         // Check task budget
-        let task_spent = self.config.task_cost(agent, task);
-        let task_budget = self.task_budget.get_mut(task).unwrap();
+        let task_spent = self.spec.task_cost(agent, task);
+        let task_budget = self.task_budgets.get_mut(task).unwrap();
         if task_spent > *task_budget {
             return Err("Task does not have enough budget for agent.");
         }
@@ -69,7 +69,7 @@ where
         *task_budget -= task_spent;
 
         // Update profit
-        let profit = self.config.profit(agent, task);
+        let profit = self.spec.profit(agent, task);
         self.profit += profit;
 
         Ok(())
@@ -82,10 +82,10 @@ where
         self.assigned.get(agent)
     }
     pub fn agent_budget(&self, agent: &A) -> u32 {
-        self.agent_budget[agent]
+        self.agent_budgets[agent]
     }
     pub fn task_budget(&self, task: &T) -> u32 {
-        self.task_budget[task]
+        self.task_budgets[task]
     }
     pub fn profit(&self) -> P {
         self.profit
@@ -145,8 +145,8 @@ where
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Assignment")
             .field("assigned", &self.assigned)
-            .field("agent_budget", &self.agent_budget)
-            .field("task_budget", &self.task_budget)
+            .field("agent_budgets", &self.agent_budgets)
+            .field("task_budgets", &self.task_budgets)
             .field("profit", &self.profit)
             .finish()
     }
