@@ -1,52 +1,53 @@
-use std::collections::btree_map::Entry;
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::hash_map::Entry;
+use std::collections::{HashMap, HashSet};
 use std::fmt::Debug;
+use std::hash::Hash;
 
 /// Define the assignment problem configuration
-#[derive(Debug, Default, Ord, PartialOrd, Eq, PartialEq)]
+#[derive(Eq, PartialEq, Debug)]
 pub struct SolverConfig<A, T>
 where
-    A: Ord + Copy + Debug,
-    T: Ord + Copy + Debug,
+    A: Hash + Eq + Copy + Debug,
+    T: Hash + Eq + Copy + Debug,
 {
-    agents: BTreeSet<A>,
-    tasks: BTreeSet<T>,
-    agent_budgets: BTreeMap<A, u32>,
-    task_budgets: BTreeMap<T, u32>,
-    agent_cost: BTreeMap<(A, T), u32>,
-    task_cost: BTreeMap<(A, T), u32>,
-    profit: BTreeMap<(A, T), i64>,
-    assigned: BTreeMap<A, BTreeSet<T>>,
+    agents: HashSet<A>,
+    tasks: HashSet<T>,
+    agent_budgets: HashMap<A, u32>,
+    task_budgets: HashMap<T, u32>,
+    agent_cost: HashMap<(A, T), u32>,
+    task_cost: HashMap<(A, T), u32>,
+    profit: HashMap<(A, T), i64>,
+    assigned: HashMap<A, HashSet<T>>,
 }
 
 impl<A, T> SolverConfig<A, T>
 where
-    A: Ord + Copy + Debug,
-    T: Ord + Copy + Debug,
+    A: Hash + Eq + Copy + Debug,
+    T: Hash + Eq + Copy + Debug,
 {
     /// Initialize a new assignment problem specification.
     pub fn new<C, D>(agents: C, tasks: D) -> Self
     where
         C: IntoIterator<Item = A>,
         D: IntoIterator<Item = T>,
-        A: Ord + Copy + Debug,
-        T: Ord + Copy + Debug,
+        A: Hash + Eq + Copy + Debug,
+        T: Hash + Eq + Copy + Debug,
     {
-        let agents: BTreeSet<A> = agents.into_iter().collect();
-        let tasks: BTreeSet<T> = tasks.into_iter().collect();
+        let agents: HashSet<A> = agents.into_iter().collect();
+        let tasks: HashSet<T> = tasks.into_iter().collect();
 
         // By default, each agent does one task, each task is done by one agent
-        let mut agent_budgets = BTreeMap::new();
+        let mut agent_budgets = HashMap::new();
         for a in &agents {
             agent_budgets.insert(*a, 1);
         }
-        let mut task_budgets = BTreeMap::new();
+        let mut task_budgets = HashMap::new();
         for t in &tasks {
             task_budgets.insert(*t, 1);
         }
-        let mut agent_cost = BTreeMap::new();
-        let mut task_cost = BTreeMap::new();
-        let mut profit = BTreeMap::new();
+        let mut agent_cost = HashMap::new();
+        let mut task_cost = HashMap::new();
+        let mut profit = HashMap::new();
         for a in &agents {
             for t in &tasks {
                 agent_cost.insert((*a, *t), 1);
@@ -63,7 +64,7 @@ where
             task_budgets,
             task_cost,
             profit,
-            assigned: BTreeMap::new(),
+            assigned: HashMap::new(),
         }
     }
 
@@ -91,11 +92,11 @@ where
         self.task_budgets = budget.into_iter().collect();
     }
     /// Set all agent costs at once.
-    pub fn set_agent_cost(&mut self, cost: BTreeMap<(A, T), u32>) {
+    pub fn set_agent_cost(&mut self, cost: HashMap<(A, T), u32>) {
         self.agent_cost = cost;
     }
     /// Set all task costs at once.
-    pub fn set_task_cost(&mut self, cost: BTreeMap<(A, T), u32>) {
+    pub fn set_task_cost(&mut self, cost: HashMap<(A, T), u32>) {
         self.task_cost = cost;
     }
     /// Set all profits at once.
@@ -118,11 +119,11 @@ where
     }
 
     /// Get the list of all agents.
-    pub fn agents(&self) -> &BTreeSet<A> {
+    pub fn agents(&self) -> &HashSet<A> {
         &self.agents
     }
     /// Get the list of all tasks.
-    pub fn tasks(&self) -> &BTreeSet<T> {
+    pub fn tasks(&self) -> &HashSet<T> {
         &self.tasks
     }
 
@@ -146,15 +147,15 @@ where
     }
 
     /// Get the map of agent budgets.
-    pub fn agent_budgets(&self) -> &BTreeMap<A, u32> {
+    pub fn agent_budgets(&self) -> &HashMap<A, u32> {
         &self.agent_budgets
     }
     /// Get the map of task budgets.
-    pub fn task_budgets(&self) -> &BTreeMap<T, u32> {
+    pub fn task_budgets(&self) -> &HashMap<T, u32> {
         &self.task_budgets
     }
     /// Get the map of assigned agent-task combinations.
-    pub fn assigned(&self) -> &BTreeMap<A, BTreeSet<T>> {
+    pub fn assigned(&self) -> &HashMap<A, HashSet<T>> {
         &self.assigned
     }
 }

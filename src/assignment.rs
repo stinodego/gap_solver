@@ -1,18 +1,18 @@
 use crate::config::SolverConfig;
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::fmt;
 use std::fmt::Debug;
 use std::hash::{Hash, Hasher};
 
-#[derive(Ord, PartialOrd, PartialEq, Eq, Clone)]
+#[derive(Eq, PartialEq, Clone)]
 pub struct Assignment<'a, A, T>
 where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
 {
     assigned: BTreeMap<A, BTreeSet<T>>,
-    agent_budget: BTreeMap<A, u32>,
-    task_budget: BTreeMap<T, u32>,
+    agent_budget: HashMap<A, u32>,
+    task_budget: HashMap<T, u32>,
     profit: i64,
     config: &'a SolverConfig<A, T>,
 }
