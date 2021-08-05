@@ -1,5 +1,5 @@
 use crate::assignment::Assignment;
-use crate::config::SolverConfig;
+use crate::config::GapSpec;
 use num::Num;
 use std::collections::HashSet;
 use std::fmt::{Debug, Display};
@@ -7,7 +7,7 @@ use std::hash::Hash;
 use std::ops::AddAssign;
 
 /// Solve the assignment problem specified in the given config
-pub fn solve<A, T, P>(config: &SolverConfig<A, T, P>) -> Vec<Assignment<A, T, P>>
+pub fn solve<A, T, P>(config: &GapSpec<A, T, P>) -> Vec<Assignment<A, T, P>>
 where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
@@ -42,7 +42,7 @@ where
 }
 
 /// Initialize set of assignments to explore
-fn init_open_set<A, T, P>(config: &SolverConfig<A, T, P>) -> HashSet<Assignment<A, T, P>>
+fn init_open_set<A, T, P>(config: &GapSpec<A, T, P>) -> HashSet<Assignment<A, T, P>>
 where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
@@ -57,7 +57,7 @@ where
 /// Determine all possible new tasks for an agent for the given assignment
 fn expand_node<'a, A, T, P>(
     assignment: &Assignment<'a, A, T, P>,
-    config: &SolverConfig<A, T, P>,
+    config: &GapSpec<A, T, P>,
     open_set: &mut HashSet<Assignment<'a, A, T, P>>,
     closed_set: &HashSet<Assignment<A, T, P>>,
 ) -> Result<(), &'a str>

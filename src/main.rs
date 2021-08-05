@@ -1,11 +1,11 @@
 use gap_solver::solve;
-use gap_solver::SolverConfig;
+use gap_solver::GapSpec;
 use std::collections::HashMap;
 
 fn main() {
     let agents = vec!['a', 'b', 'c'];
     let tasks = vec!['1', '2'];
-    let mut config = SolverConfig::new(agents, tasks);
+    let mut config = GapSpec::new(agents, tasks);
 
     let mut agent_budget = HashMap::new();
     agent_budget.insert('a', 1);

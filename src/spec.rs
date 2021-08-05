@@ -7,7 +7,7 @@ use std::ops::AddAssign;
 
 /// Define the assignment problem configuration
 #[derive(Debug)]
-pub struct SolverConfig<A, T, P>
+pub struct GapSpec<A, T, P>
 where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
@@ -23,7 +23,7 @@ where
     assigned: HashMap<A, HashSet<T>>,
 }
 
-impl<A, T, P> SolverConfig<A, T, P>
+impl<A, T, P> GapSpec<A, T, P>
 where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,

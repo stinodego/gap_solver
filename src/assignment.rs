@@ -1,4 +1,4 @@
-use crate::config::SolverConfig;
+use crate::config::GapSpec;
 use num::Num;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::fmt;
@@ -17,7 +17,7 @@ where
     agent_budget: HashMap<A, u32>,
     task_budget: HashMap<T, u32>,
     profit: P,
-    config: &'a SolverConfig<A, T, P>,
+    config: &'a GapSpec<A, T, P>,
 }
 
 impl<'a, A, T, P> Assignment<'a, A, T, P>
@@ -26,7 +26,7 @@ where
     T: Hash + Ord + Copy + Debug,
     P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
 {
-    pub fn new(config: &'a SolverConfig<A, T, P>) -> Self {
+    pub fn new(config: &'a GapSpec<A, T, P>) -> Self {
         // Initialize empty assignment
         let mut assignment = Self {
             assigned: BTreeMap::new(),
