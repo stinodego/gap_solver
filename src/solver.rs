@@ -1,19 +1,22 @@
 use crate::assignment::Assignment;
 use crate::config::SolverConfig;
 use crate::utils;
+use num::Num;
 use std::collections::HashMap;
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 use std::hash::Hash;
+use std::ops::AddAssign;
 
 /// Solve the assignment problem specified in the given config
-pub fn solve<A, T>(config: &SolverConfig<A, T>) -> Vec<Assignment<A, T>>
+pub fn solve<A, T, P>(config: &SolverConfig<A, T, P>) -> Vec<Assignment<A, T, P>>
 where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
+    P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
 {
-    let mut open_set: HashMap<Assignment<A, T>, f64> = init_open_set(config);
-    let mut closed_set: HashMap<Assignment<A, T>, f64> = HashMap::new();
-    let mut finished_set: Vec<Assignment<A, T>> = Vec::new();
+    let mut open_set: HashMap<Assignment<A, T, P>, P> = init_open_set(config);
+    let mut closed_set: HashMap<Assignment<A, T, P>, P> = HashMap::new();
+    let mut finished_set: Vec<Assignment<A, T, P>> = Vec::new();
 
     while !open_set.is_empty() {
         // Explore the most promising node
@@ -37,10 +40,11 @@ where
 }
 
 /// Initialize set of assignments to explore
-fn init_open_set<A, T>(config: &SolverConfig<A, T>) -> HashMap<Assignment<A, T>, f64>
+fn init_open_set<A, T, P>(config: &SolverConfig<A, T, P>) -> HashMap<Assignment<A, T, P>, P>
 where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
+    P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
 {
     let mut open_set = HashMap::new();
     let start = Assignment::new(config);
@@ -50,15 +54,16 @@ where
 }
 
 /// Determine all possible new tasks for an agent for the given assignment
-fn expand_node<'a, A, T>(
-    assignment: &Assignment<'a, A, T>,
-    config: &SolverConfig<A, T>,
-    open_set: &mut HashMap<Assignment<'a, A, T>, f64>,
-    closed_set: &HashMap<Assignment<A, T>, f64>,
+fn expand_node<'a, A, T, P>(
+    assignment: &Assignment<'a, A, T, P>,
+    config: &SolverConfig<A, T, P>,
+    open_set: &mut HashMap<Assignment<'a, A, T, P>, P>,
+    closed_set: &HashMap<Assignment<A, T, P>, P>,
 ) -> Result<(), &'a str>
 where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
+    P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
 {
     let mut finished = true;
     for agent in config.agents() {

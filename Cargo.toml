@@ -11,3 +11,4 @@ categories = ["mathematics", "algorithms"]
 include = ["/src/", "README.md"]
 
 [dependencies]
+num = "0.4.0"

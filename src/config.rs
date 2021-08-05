@@ -1,14 +1,17 @@
+use num::Num;
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 use std::hash::Hash;
+use std::ops::AddAssign;
 
 /// Define the assignment problem configuration
 #[derive(Debug)]
-pub struct SolverConfig<A, T>
+pub struct SolverConfig<A, T, P>
 where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
+    P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
 {
     agents: HashSet<A>,
     tasks: HashSet<T>,
@@ -16,22 +19,21 @@ where
     task_budgets: HashMap<T, u32>,
     agent_cost: HashMap<(A, T), u32>,
     task_cost: HashMap<(A, T), u32>,
-    profit: HashMap<(A, T), f64>,
+    profit: HashMap<(A, T), P>,
     assigned: HashMap<A, HashSet<T>>,
 }
 
-impl<A, T> SolverConfig<A, T>
+impl<A, T, P> SolverConfig<A, T, P>
 where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
+    P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
 {
     /// Initialize a new assignment problem specification.
     pub fn new<C, D>(agents: C, tasks: D) -> Self
     where
         C: IntoIterator<Item = A>,
         D: IntoIterator<Item = T>,
-        A: Hash + Eq + Copy + Debug,
-        T: Hash + Eq + Copy + Debug,
     {
         let agents: HashSet<A> = agents.into_iter().collect();
         let tasks: HashSet<T> = tasks.into_iter().collect();
@@ -52,7 +54,7 @@ where
             for t in &tasks {
                 agent_cost.insert((*a, *t), 1);
                 task_cost.insert((*a, *t), 1);
-                profit.insert((*a, *t), 1.0);
+                profit.insert((*a, *t), P::one());
             }
         }
 
@@ -102,7 +104,7 @@ where
     /// Set all profits at once.
     pub fn set_profit<C>(&mut self, profit: C)
     where
-        C: IntoIterator<Item = ((A, T), f64)>,
+        C: IntoIterator<Item = ((A, T), P)>,
     {
         self.profit = profit.into_iter().collect();
     }
@@ -142,7 +144,7 @@ where
     /// Get the profit associated with the given agent-task combination.
     /// If the agent is assigned to the task, this profit will be added
     /// to the total assignment profit.
-    pub fn profit(&self, agent: &A, task: &T) -> f64 {
+    pub fn profit(&self, agent: &A, task: &T) -> P {
         self.profit[&(*agent, *task)]
     }
 

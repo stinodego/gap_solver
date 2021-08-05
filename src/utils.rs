@@ -30,7 +30,7 @@ fn test_max_key_by_value() {
 
 #[test]
 fn test_max_key_by_value_empty() {
-    let input: HashMap<u32, f64> = HashMap::new();
+    let input: HashMap<u32, u32> = HashMap::new();
     let result = max_key_by_value(&input);
     assert_eq!(result, None);
 }

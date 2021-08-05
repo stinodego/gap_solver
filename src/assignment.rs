@@ -1,34 +1,38 @@
 use crate::config::SolverConfig;
+use num::Num;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::fmt;
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 use std::hash::{Hash, Hasher};
+use std::ops::AddAssign;
 
 #[derive(Clone)]
-pub struct Assignment<'a, A, T>
+pub struct Assignment<'a, A, T, P>
 where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
+    P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
 {
     assigned: BTreeMap<A, BTreeSet<T>>,
     agent_budget: HashMap<A, u32>,
     task_budget: HashMap<T, u32>,
-    profit: f64,
-    config: &'a SolverConfig<A, T>,
+    profit: P,
+    config: &'a SolverConfig<A, T, P>,
 }
 
-impl<'a, A, T> Assignment<'a, A, T>
+impl<'a, A, T, P> Assignment<'a, A, T, P>
 where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
+    P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
 {
-    pub fn new(config: &'a SolverConfig<A, T>) -> Self {
+    pub fn new(config: &'a SolverConfig<A, T, P>) -> Self {
         // Initialize empty assignment
         let mut assignment = Self {
             assigned: BTreeMap::new(),
             agent_budget: config.agent_budgets().clone(),
             task_budget: config.task_budgets().clone(),
-            profit: 0.0,
+            profit: P::zero(),
             config,
         };
         // Handle agents that are already assigned
@@ -83,17 +87,18 @@ where
     pub fn task_budget(&self, task: &T) -> u32 {
         self.task_budget[task]
     }
-    pub fn profit(&self) -> f64 {
+    pub fn profit(&self) -> P {
         self.profit
     }
 }
 
 /// Only the assignment of agents to tasks matters here;
 /// the rest can be derived from the problem specification
-impl<'a, A, T> Hash for Assignment<'a, A, T>
+impl<'a, A, T, P> Hash for Assignment<'a, A, T, P>
 where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
+    P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
 {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.assigned.hash(state);
@@ -102,36 +107,40 @@ where
 
 /// Only the assignment of agents to tasks matters here;
 /// the rest can be derived from the problem specification
-impl<'a, A, T> PartialEq for Assignment<'a, A, T>
+impl<'a, A, T, P> PartialEq for Assignment<'a, A, T, P>
 where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
+    P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
 {
     fn eq(&self, other: &Self) -> bool {
         self.assigned == other.assigned
     }
 }
-impl<'a, A, T> Eq for Assignment<'a, A, T>
+impl<'a, A, T, P> Eq for Assignment<'a, A, T, P>
 where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
+    P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
 {
 }
 
-impl<'a, A, T> fmt::Display for Assignment<'a, A, T>
+impl<'a, A, T, P> Display for Assignment<'a, A, T, P>
 where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
+    P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Assignment {{ {:?}: {} }}", self.assigned, self.profit)
     }
 }
 
-impl<'a, A, T> Debug for Assignment<'a, A, T>
+impl<'a, A, T, P> Debug for Assignment<'a, A, T, P>
 where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
+    P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Assignment")
