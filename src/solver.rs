@@ -1,8 +1,7 @@
 use crate::assignment::Assignment;
 use crate::config::SolverConfig;
-use crate::utils;
 use num::Num;
-use std::collections::HashMap;
+use std::collections::HashSet;
 use std::fmt::{Debug, Display};
 use std::hash::Hash;
 use std::ops::AddAssign;
@@ -14,17 +13,19 @@ where
     T: Hash + Ord + Copy + Debug,
     P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
 {
-    let mut open_set: HashMap<Assignment<A, T, P>, P> = init_open_set(config);
-    let mut closed_set: HashMap<Assignment<A, T, P>, P> = HashMap::new();
+    let mut open_set: HashSet<Assignment<A, T, P>> = init_open_set(config);
+    let mut closed_set: HashSet<Assignment<A, T, P>> = HashSet::new();
     let mut finished_set: Vec<Assignment<A, T, P>> = Vec::new();
 
     while !open_set.is_empty() {
         // Explore the most promising node
-        let current = utils::max_key_by_value(&open_set).unwrap().clone();
-
+        let current = open_set
+            .iter()
+            .max_by(|x, y| x.profit().partial_cmp(&y.profit()).unwrap())
+            .unwrap()
+            .clone();
         // Remove current node from open set
-        let current_profit = open_set.remove(&current).unwrap();
-
+        open_set.remove(&current);
         // Determine all possible next assignments
         match expand_node(&current, config, &mut open_set, &closed_set) {
             Ok(_) => {}
@@ -32,24 +33,24 @@ where
                 finished_set.push(current.clone());
             }
         }
-
         // Move node to the closed set
-        closed_set.insert(current, current_profit);
+        closed_set.insert(current);
     }
+    // Sort resulting assignments by profit (descending)
+    finished_set.sort_by(|x, y| y.profit().partial_cmp(&x.profit()).unwrap());
     finished_set
 }
 
 /// Initialize set of assignments to explore
-fn init_open_set<A, T, P>(config: &SolverConfig<A, T, P>) -> HashMap<Assignment<A, T, P>, P>
+fn init_open_set<A, T, P>(config: &SolverConfig<A, T, P>) -> HashSet<Assignment<A, T, P>>
 where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
     P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
 {
-    let mut open_set = HashMap::new();
+    let mut open_set = HashSet::new();
     let start = Assignment::new(config);
-    let start_profit = start.profit();
-    open_set.insert(start, start_profit);
+    open_set.insert(start);
     open_set
 }
 
@@ -57,8 +58,8 @@ where
 fn expand_node<'a, A, T, P>(
     assignment: &Assignment<'a, A, T, P>,
     config: &SolverConfig<A, T, P>,
-    open_set: &mut HashMap<Assignment<'a, A, T, P>, P>,
-    closed_set: &HashMap<Assignment<A, T, P>, P>,
+    open_set: &mut HashSet<Assignment<'a, A, T, P>>,
+    closed_set: &HashSet<Assignment<A, T, P>>,
 ) -> Result<(), &'a str>
 where
     A: Hash + Ord + Copy + Debug,
@@ -93,9 +94,8 @@ where
             finished = false;
             let mut next = assignment.clone();
             next.assign(agent, &t).unwrap();
-            if !closed_set.contains_key(&next) {
-                let profit = next.profit();
-                open_set.insert(next, profit);
+            if !closed_set.contains(&next) {
+                open_set.insert(next);
             }
         }
     }
