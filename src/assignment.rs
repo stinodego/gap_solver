@@ -13,7 +13,7 @@ where
     assigned: BTreeMap<A, BTreeSet<T>>,
     agent_budget: HashMap<A, u32>,
     task_budget: HashMap<T, u32>,
-    profit: i64,
+    profit: f64,
     config: &'a SolverConfig<A, T>,
 }
 
@@ -28,7 +28,7 @@ where
             assigned: BTreeMap::new(),
             agent_budget: config.agent_budgets().clone(),
             task_budget: config.task_budgets().clone(),
-            profit: 0,
+            profit: 0.0,
             config,
         };
         // Handle agents that are already assigned
@@ -83,7 +83,7 @@ where
     pub fn task_budget(&self, task: &T) -> u32 {
         self.task_budget[task]
     }
-    pub fn profit(&self) -> i64 {
+    pub fn profit(&self) -> f64 {
         self.profit
     }
 }

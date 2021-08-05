@@ -19,12 +19,12 @@ fn main() {
     config.set_task_budgets(task_budget);
 
     let mut profit = HashMap::new();
-    profit.insert(('a', 1), 3);
-    profit.insert(('b', 1), 1);
-    profit.insert(('c', 1), 2);
-    profit.insert(('a', 2), 1);
-    profit.insert(('b', 2), 3);
-    profit.insert(('c', 2), 2);
+    profit.insert(('a', 1), 3.0);
+    profit.insert(('b', 1), 1.0);
+    profit.insert(('c', 1), 2.0);
+    profit.insert(('a', 2), 1.0);
+    profit.insert(('b', 2), 3.0);
+    profit.insert(('c', 2), 2.0);
     config.set_profit(profit);
 
     let mut assigned = HashMap::new();

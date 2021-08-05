@@ -16,7 +16,7 @@ where
     task_budgets: HashMap<T, u32>,
     agent_cost: HashMap<(A, T), u32>,
     task_cost: HashMap<(A, T), u32>,
-    profit: HashMap<(A, T), i64>,
+    profit: HashMap<(A, T), f64>,
     assigned: HashMap<A, HashSet<T>>,
 }
 
@@ -52,7 +52,7 @@ where
             for t in &tasks {
                 agent_cost.insert((*a, *t), 1);
                 task_cost.insert((*a, *t), 1);
-                profit.insert((*a, *t), 1);
+                profit.insert((*a, *t), 1.0);
             }
         }
 
@@ -102,7 +102,7 @@ where
     /// Set all profits at once.
     pub fn set_profit<C>(&mut self, profit: C)
     where
-        C: IntoIterator<Item = ((A, T), i64)>,
+        C: IntoIterator<Item = ((A, T), f64)>,
     {
         self.profit = profit.into_iter().collect();
     }
@@ -142,7 +142,7 @@ where
     /// Get the profit associated with the given agent-task combination.
     /// If the agent is assigned to the task, this profit will be added
     /// to the total assignment profit.
-    pub fn profit(&self, agent: &A, task: &T) -> i64 {
+    pub fn profit(&self, agent: &A, task: &T) -> f64 {
         self.profit[&(*agent, *task)]
     }
 

@@ -11,8 +11,8 @@ where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
 {
-    let mut open_set: HashMap<Assignment<A, T>, i64> = init_open_set(config);
-    let mut closed_set: HashMap<Assignment<A, T>, i64> = HashMap::new();
+    let mut open_set: HashMap<Assignment<A, T>, f64> = init_open_set(config);
+    let mut closed_set: HashMap<Assignment<A, T>, f64> = HashMap::new();
     let mut finished_set: Vec<Assignment<A, T>> = Vec::new();
 
     while !open_set.is_empty() {
@@ -37,7 +37,7 @@ where
 }
 
 /// Initialize set of assignments to explore
-fn init_open_set<A, T>(config: &SolverConfig<A, T>) -> HashMap<Assignment<A, T>, i64>
+fn init_open_set<A, T>(config: &SolverConfig<A, T>) -> HashMap<Assignment<A, T>, f64>
 where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
@@ -53,8 +53,8 @@ where
 fn expand_node<'a, A, T>(
     assignment: &Assignment<'a, A, T>,
     config: &SolverConfig<A, T>,
-    open_set: &mut HashMap<Assignment<'a, A, T>, i64>,
-    closed_set: &HashMap<Assignment<A, T>, i64>,
+    open_set: &mut HashMap<Assignment<'a, A, T>, f64>,
+    closed_set: &HashMap<Assignment<A, T>, f64>,
 ) -> Result<(), &'a str>
 where
     A: Hash + Ord + Copy + Debug,
