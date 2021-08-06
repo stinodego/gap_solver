@@ -28,13 +28,13 @@ where
             .max_by(|x, y| x.profit().partial_cmp(&y.profit()).unwrap())
             .unwrap()
             .clone();
-        debug!(
-            "Set sizes:\tOpen: {:<4}\tClosed: {:<4}\tFinished: {:<4}",
+        trace!(
+            "Set sizes -- open: {} - closed: {} - maximum: {}",
             open_set.len(),
             closed_set.len(),
             finished_set.len(),
         );
-        trace!("Expanding node: {}", current);
+        trace!("Expanding -- {}", current);
 
         // Remove current node from open set
         open_set.remove(&current);
@@ -42,7 +42,7 @@ where
         match expand_node(&current, spec, &mut open_set, &closed_set) {
             Ok(_) => {}
             Err(_) => {
-                debug!("Found finished assignment: {}", current);
+                debug!("Found finished assignment -- {}", current);
                 handle_finished_assignment(&current, &mut max_profit, &mut finished_set)
             }
         }
@@ -132,11 +132,11 @@ fn handle_finished_assignment<'a, A, T, C, P>(
 {
     match assignment.profit().partial_cmp(max_profit) {
         Some(Ordering::Equal) => {
-            info!("Found new best assignment: {}", assignment);
+            info!("Found maximum assignment -- {}", assignment);
             finished_set.insert(assignment.clone());
         }
         Some(Ordering::Greater) => {
-            info!("Found new best assignment: {}", assignment);
+            info!("Found new maximum assignment -- {}", assignment);
             *max_profit = assignment.profit();
             *finished_set = HashSet::new();
             finished_set.insert(assignment.clone());

@@ -1,7 +1,10 @@
 use gap_solver::solve;
 use gap_solver::GapSpec;
+// use simple_logger::SimpleLogger;
 
 fn main() {
+    simple_logger::init_with_level(log::Level::Info).unwrap();
+
     // Setup
     let agents = ["a", "b", "c"];
     let tasks = ["1", "2", "3", "4", "5", "6"];
@@ -34,8 +37,6 @@ fn main() {
         (("c", "6"), 1),
     ];
     spec.set_profits(profits);
-
-    println!("{:?}", spec);
 
     let solutions = solve(&spec);
     for assignment in solutions {
