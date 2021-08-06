@@ -44,6 +44,28 @@ where
         assignment
     }
 
+    pub fn from_assigned<C, D>(assigned: C, spec: &'a GapSpec<A, T, P>) -> Self
+    where
+        C: IntoIterator<Item = (A, D)>,
+        D: IntoIterator<Item = T>,
+    {
+        // Initialize empty assignment
+        let mut assignment = Self {
+            assigned: BTreeMap::new(),
+            agent_budgets: spec.agent_budgets().clone(),
+            task_budgets: spec.task_budgets().clone(),
+            profit: P::zero(),
+            spec,
+        };
+        // Handle agents that are already assigned
+        for (agent, tasks) in assigned {
+            for task in tasks {
+                assignment.assign(&agent, &task).unwrap();
+            }
+        }
+        assignment
+    }
+
     /// Assign an agent to a task
     pub fn assign(&mut self, agent: &A, task: &T) -> Result<(), &str> {
         // Check assigned tasks
