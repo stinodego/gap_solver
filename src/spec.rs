@@ -106,7 +106,7 @@ where
     }
 
     /// Set all profits at once.
-    pub fn set_profit<M>(&mut self, profit: M)
+    pub fn set_profits<M>(&mut self, profit: M)
     where
         M: IntoIterator<Item = ((A, T), P)>,
     {

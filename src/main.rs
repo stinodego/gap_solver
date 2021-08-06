@@ -20,7 +20,7 @@ fn main() {
         (('c', '1'), 2.0),
         (('c', '2'), 2.0),
     ];
-    spec.set_profit(profits);
+    spec.set_profits(profits);
 
     let assigned = [('a', vec!['1'])];
     spec.set_assigned(assigned);
