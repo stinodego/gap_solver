@@ -3,37 +3,39 @@ use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
 use std::fmt::{Debug, Display};
 use std::hash::Hash;
-use std::ops::AddAssign;
+use std::ops::{AddAssign, SubAssign};
 
 /// Define the assignment problem configuration
 #[derive(Debug)]
-pub struct GapSpec<A, T, P>
+pub struct GapSpec<A, T, C, P>
 where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
+    C: Num + SubAssign + PartialOrd + Copy + Debug,
     P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
 {
     agents: HashSet<A>,
     tasks: HashSet<T>,
-    agent_budgets: HashMap<A, u32>,
-    task_budgets: HashMap<T, u32>,
-    agent_cost: HashMap<(A, T), u32>,
-    task_cost: HashMap<(A, T), u32>,
+    agent_budgets: HashMap<A, C>,
+    task_budgets: HashMap<T, C>,
+    agent_cost: HashMap<(A, T), C>,
+    task_cost: HashMap<(A, T), C>,
     profit: HashMap<(A, T), P>,
     assigned: HashMap<A, HashSet<T>>,
 }
 
-impl<A, T, P> GapSpec<A, T, P>
+impl<A, T, C, P> GapSpec<A, T, C, P>
 where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
+    C: Num + SubAssign + PartialOrd + Copy + Debug,
     P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
 {
     /// Initialize a new assignment problem specification.
-    pub fn new<C, D>(agents: C, tasks: D) -> Self
+    pub fn new<M, N>(agents: M, tasks: N) -> Self
     where
-        C: IntoIterator<Item = A>,
-        D: IntoIterator<Item = T>,
+        M: IntoIterator<Item = A>,
+        N: IntoIterator<Item = T>,
     {
         let agents: HashSet<A> = agents.into_iter().collect();
         let tasks: HashSet<T> = tasks.into_iter().collect();
@@ -41,19 +43,19 @@ where
         // By default, each agent does one task, each task is done by one agent
         let mut agent_budgets = HashMap::new();
         for a in &agents {
-            agent_budgets.insert(*a, 1);
+            agent_budgets.insert(*a, C::one());
         }
         let mut task_budgets = HashMap::new();
         for t in &tasks {
-            task_budgets.insert(*t, 1);
+            task_budgets.insert(*t, C::one());
         }
         let mut agent_cost = HashMap::new();
         let mut task_cost = HashMap::new();
         let mut profit = HashMap::new();
         for a in &agents {
             for t in &tasks {
-                agent_cost.insert((*a, *t), 1);
-                task_cost.insert((*a, *t), 1);
+                agent_cost.insert((*a, *t), C::one());
+                task_cost.insert((*a, *t), C::one());
                 profit.insert((*a, *t), P::one());
             }
         }
@@ -71,7 +73,7 @@ where
     }
 
     /// Set the budget for a single agent
-    pub fn set_agent_budget(&mut self, agent: A, budget: u32) -> Result<u32, String> {
+    pub fn set_agent_budget(&mut self, agent: A, budget: C) -> Result<C, String> {
         if let Entry::Occupied(mut e) = self.agent_budgets.entry(agent) {
             Ok(e.insert(budget))
         } else {
@@ -80,39 +82,41 @@ where
     }
 
     /// Set all agent budgets at once.
-    pub fn set_agent_budgets<C>(&mut self, budget: C)
+    pub fn set_agent_budgets<M>(&mut self, budgets: M)
     where
-        C: IntoIterator<Item = (A, u32)>,
+        M: IntoIterator<Item = (A, C)>,
     {
-        self.agent_budgets = budget.into_iter().collect();
+        self.agent_budgets = budgets.into_iter().collect();
     }
     /// Set all task budgets at once.
-    pub fn set_task_budgets<C>(&mut self, budget: C)
+    pub fn set_task_budgets<M>(&mut self, budgets: M)
     where
-        C: IntoIterator<Item = (T, u32)>,
+        M: IntoIterator<Item = (T, C)>,
     {
-        self.task_budgets = budget.into_iter().collect();
+        self.task_budgets = budgets.into_iter().collect();
     }
+
     /// Set all agent costs at once.
-    pub fn set_agent_cost(&mut self, cost: HashMap<(A, T), u32>) {
+    pub fn set_agent_cost(&mut self, cost: HashMap<(A, T), C>) {
         self.agent_cost = cost;
     }
     /// Set all task costs at once.
-    pub fn set_task_cost(&mut self, cost: HashMap<(A, T), u32>) {
+    pub fn set_task_cost(&mut self, cost: HashMap<(A, T), C>) {
         self.task_cost = cost;
     }
+
     /// Set all profits at once.
-    pub fn set_profit<C>(&mut self, profit: C)
+    pub fn set_profit<M>(&mut self, profit: M)
     where
-        C: IntoIterator<Item = ((A, T), P)>,
+        M: IntoIterator<Item = ((A, T), P)>,
     {
         self.profit = profit.into_iter().collect();
     }
     /// Set all pre-assigned agents at once.
-    pub fn set_assigned<C, D>(&mut self, assigned: C)
+    pub fn set_assigned<M, N>(&mut self, assigned: M)
     where
-        C: IntoIterator<Item = (A, D)>,
-        D: IntoIterator<Item = T>,
+        M: IntoIterator<Item = (A, N)>,
+        N: IntoIterator<Item = T>,
     {
         self.assigned = assigned
             .into_iter()
@@ -132,13 +136,13 @@ where
     /// Get the agent cost associated with the given agent-task combination.
     /// If the agent is assigned to the task, this cost will be deducted
     /// from its budget.
-    pub fn agent_cost(&self, agent: &A, task: &T) -> u32 {
+    pub fn agent_cost(&self, agent: &A, task: &T) -> C {
         self.agent_cost[&(*agent, *task)]
     }
     /// Get the task cost associated with the given agent-task combination.
     /// If the agent is assigned to the task, this cost will be deducted
     /// from the task budget.
-    pub fn task_cost(&self, agent: &A, task: &T) -> u32 {
+    pub fn task_cost(&self, agent: &A, task: &T) -> C {
         self.task_cost[&(*agent, *task)]
     }
     /// Get the profit associated with the given agent-task combination.
@@ -149,11 +153,11 @@ where
     }
 
     /// Get the map of agent budgets.
-    pub fn agent_budgets(&self) -> &HashMap<A, u32> {
+    pub fn agent_budgets(&self) -> &HashMap<A, C> {
         &self.agent_budgets
     }
     /// Get the map of task budgets.
-    pub fn task_budgets(&self) -> &HashMap<T, u32> {
+    pub fn task_budgets(&self) -> &HashMap<T, C> {
         &self.task_budgets
     }
     /// Get the map of assigned agent-task combinations.

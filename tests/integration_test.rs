@@ -4,7 +4,7 @@ use gap_solver::{solve, Assignment, GapSpec};
 fn default_spec() {
     let agents = ['a', 'b'];
     let tasks = ['1', '2'];
-    let spec: GapSpec<char, char, u32> = GapSpec::new(agents, tasks);
+    let spec: GapSpec<char, char, u32, f64> = GapSpec::new(agents, tasks);
 
     let result = solve(&spec);
 
@@ -23,7 +23,7 @@ fn default_spec() {
 fn default_spec_more_agents_than_tasks() {
     let agents = ['a', 'b'];
     let tasks = ['1'];
-    let spec: GapSpec<char, char, u32> = GapSpec::new(agents, tasks);
+    let spec: GapSpec<char, char, u32, f64> = GapSpec::new(agents, tasks);
 
     let result = solve(&spec);
 
@@ -42,7 +42,7 @@ fn default_spec_more_agents_than_tasks() {
 fn default_spec_more_tasks_than_agents() {
     let agents = ['a'];
     let tasks = ['1', '2'];
-    let spec: GapSpec<char, char, u32> = GapSpec::new(agents, tasks);
+    let spec: GapSpec<char, char, u32, f64> = GapSpec::new(agents, tasks);
 
     let result = solve(&spec);
 

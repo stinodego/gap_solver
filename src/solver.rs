@@ -4,18 +4,19 @@ use num::Num;
 use std::collections::HashSet;
 use std::fmt::{Debug, Display};
 use std::hash::Hash;
-use std::ops::AddAssign;
+use std::ops::{AddAssign, SubAssign};
 
 /// Solve the assignment problem specified in the given spec
-pub fn solve<A, T, P>(spec: &GapSpec<A, T, P>) -> Vec<Assignment<A, T, P>>
+pub fn solve<A, T, C, P>(spec: &GapSpec<A, T, C, P>) -> Vec<Assignment<A, T, C, P>>
 where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
+    C: Num + SubAssign + PartialOrd + Copy + Debug,
     P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
 {
-    let mut open_set: HashSet<Assignment<A, T, P>> = init_open_set(spec);
-    let mut closed_set: HashSet<Assignment<A, T, P>> = HashSet::new();
-    let mut finished_set: HashSet<Assignment<A, T, P>> = HashSet::new();
+    let mut open_set: HashSet<Assignment<A, T, C, P>> = init_open_set(spec);
+    let mut closed_set: HashSet<Assignment<A, T, C, P>> = HashSet::new();
+    let mut finished_set: HashSet<Assignment<A, T, C, P>> = HashSet::new();
 
     while !open_set.is_empty() {
         // Explore the most promising node
@@ -41,10 +42,11 @@ where
 }
 
 /// Initialize set of assignments to explore
-fn init_open_set<A, T, P>(spec: &GapSpec<A, T, P>) -> HashSet<Assignment<A, T, P>>
+fn init_open_set<A, T, C, P>(spec: &GapSpec<A, T, C, P>) -> HashSet<Assignment<A, T, C, P>>
 where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
+    C: Num + SubAssign + PartialOrd + Copy + Debug,
     P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
 {
     let mut open_set = HashSet::new();
@@ -54,22 +56,23 @@ where
 }
 
 /// Determine all possible new tasks for an agent for the given assignment
-fn expand_node<'a, A, T, P>(
-    assignment: &Assignment<'a, A, T, P>,
-    spec: &GapSpec<A, T, P>,
-    open_set: &mut HashSet<Assignment<'a, A, T, P>>,
-    closed_set: &HashSet<Assignment<A, T, P>>,
+fn expand_node<'a, A, T, C, P>(
+    assignment: &Assignment<'a, A, T, C, P>,
+    spec: &GapSpec<A, T, C, P>,
+    open_set: &mut HashSet<Assignment<'a, A, T, C, P>>,
+    closed_set: &HashSet<Assignment<A, T, C, P>>,
 ) -> Result<(), &'a str>
 where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
+    C: Num + SubAssign + PartialOrd + Copy + Debug,
     P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
 {
     let mut finished = true;
     for agent in spec.agents() {
         // Determine agent budget
         let agent_budget = assignment.agent_budget(agent);
-        if agent_budget == 0 {
+        if agent_budget == C::zero() {
             continue;
         };
         // Determine all possible tasks for the agent
@@ -106,13 +109,16 @@ where
 }
 
 /// Format the set of finished assignments.
-fn format_result<A, T, P>(assignments: HashSet<Assignment<A, T, P>>) -> Vec<Assignment<A, T, P>>
+fn format_result<A, T, C, P>(
+    assignments: HashSet<Assignment<A, T, C, P>>,
+) -> Vec<Assignment<A, T, C, P>>
 where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
+    C: Num + SubAssign + PartialOrd + Copy + Debug,
     P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
 {
-    let mut result: Vec<Assignment<A, T, P>> = assignments.into_iter().collect();
+    let mut result: Vec<Assignment<A, T, C, P>> = assignments.into_iter().collect();
     result.sort_by(|y, x| x.profit().partial_cmp(&y.profit()).unwrap());
     result
 }
