@@ -103,18 +103,23 @@ where
         Ok(())
     }
 
+    /// Get assigned agents and their tasks
     pub fn assigned(&self) -> &BTreeMap<A, BTreeSet<T>> {
         &self.assigned
     }
+    /// Get the tasks assigned to the given agent.
     pub fn agent_tasks(&self, agent: &A) -> Option<&BTreeSet<T>> {
         self.assigned.get(agent)
     }
+    /// Get the remaining budget of the given agent.
     pub fn agent_budget(&self, agent: &A) -> C {
         self.agent_budgets[agent]
     }
+    /// Get the remaining budget of the given task.
     pub fn task_budget(&self, task: &T) -> C {
         self.task_budgets[task]
     }
+    /// Get the remaining budget of the given task.
     pub fn profit(&self) -> P {
         self.profit
     }

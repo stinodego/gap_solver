@@ -92,6 +92,7 @@ fn small_problem_spec() {
 
     assert_eq!(result.len(), 1);
     assert!(result.contains(&truth));
+    assert_eq!(result.iter().next().unwrap().profit(), 9.0);
 }
 
 #[test]
