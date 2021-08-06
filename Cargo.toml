@@ -12,3 +12,4 @@ include = ["/src/", "README.md"]
 
 [dependencies]
 num = "0.4.0"
+log = "0.4.14"

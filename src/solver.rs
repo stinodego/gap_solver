@@ -1,13 +1,15 @@
 use crate::assignment::Assignment;
 use crate::spec::GapSpec;
+use log::{debug, info, trace};
 use num::Num;
+use std::cmp::Ordering;
 use std::collections::HashSet;
 use std::fmt::{Debug, Display};
 use std::hash::Hash;
 use std::ops::{AddAssign, SubAssign};
 
 /// Solve the assignment problem specified in the given spec
-pub fn solve<A, T, C, P>(spec: &GapSpec<A, T, C, P>) -> Vec<Assignment<A, T, C, P>>
+pub fn solve<A, T, C, P>(spec: &GapSpec<A, T, C, P>) -> HashSet<Assignment<A, T, C, P>>
 where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
@@ -17,6 +19,7 @@ where
     let mut open_set: HashSet<Assignment<A, T, C, P>> = init_open_set(spec);
     let mut closed_set: HashSet<Assignment<A, T, C, P>> = HashSet::new();
     let mut finished_set: HashSet<Assignment<A, T, C, P>> = HashSet::new();
+    let mut max_profit = open_set.iter().next().unwrap().profit();
 
     while !open_set.is_empty() {
         // Explore the most promising node
@@ -25,20 +28,28 @@ where
             .max_by(|x, y| x.profit().partial_cmp(&y.profit()).unwrap())
             .unwrap()
             .clone();
+        debug!(
+            "Set sizes:\tOpen: {:<4}\tClosed: {:<4}\tFinished: {:<4}",
+            open_set.len(),
+            closed_set.len(),
+            finished_set.len(),
+        );
+        trace!("Expanding node: {}", current);
+
         // Remove current node from open set
         open_set.remove(&current);
         // Determine all possible next assignments
         match expand_node(&current, spec, &mut open_set, &closed_set) {
             Ok(_) => {}
             Err(_) => {
-                finished_set.insert(current.clone());
+                debug!("Found finished assignment: {}", current);
+                handle_finished_assignment(&current, &mut max_profit, &mut finished_set)
             }
         }
         // Move node to the closed set
         closed_set.insert(current);
     }
-    // Sort resulting assignments by profit (descending)
-    format_result(finished_set)
+    finished_set
 }
 
 /// Initialize set of assignments to explore
@@ -108,17 +119,28 @@ where
     }
 }
 
-/// Format the set of finished assignments.
-fn format_result<A, T, C, P>(
-    assignments: HashSet<Assignment<A, T, C, P>>,
-) -> Vec<Assignment<A, T, C, P>>
-where
+/// Manage set of finished assignments.
+fn handle_finished_assignment<'a, A, T, C, P>(
+    assignment: &Assignment<'a, A, T, C, P>,
+    max_profit: &mut P,
+    finished_set: &mut HashSet<Assignment<'a, A, T, C, P>>,
+) where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
     C: Num + SubAssign + PartialOrd + Copy + Debug,
     P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
 {
-    let mut result: Vec<Assignment<A, T, C, P>> = assignments.into_iter().collect();
-    result.sort_by(|y, x| x.profit().partial_cmp(&y.profit()).unwrap());
-    result
+    match assignment.profit().partial_cmp(max_profit) {
+        Some(Ordering::Equal) => {
+            info!("Found new best assignment: {}", assignment);
+            finished_set.insert(assignment.clone());
+        }
+        Some(Ordering::Greater) => {
+            info!("Found new best assignment: {}", assignment);
+            *max_profit = assignment.profit();
+            *finished_set = HashSet::new();
+            finished_set.insert(assignment.clone());
+        }
+        _ => {}
+    }
 }
