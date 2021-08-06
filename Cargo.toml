@@ -1,6 +1,6 @@
 [package]
 name = "gap_solver"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Stijn de Gooijer"]
 edition = "2018"
 description = "A solver for the generalized assignment problem."
