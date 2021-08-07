@@ -29,10 +29,15 @@ Refer to the [Rust docs](https://docs.rs/gap_solver) for code examples.
 
 ## Features
 
-The implementation is a simple depth-first search algorithm. Therefore, it does not work well for very large problems.
+This crate is in active development. Currently, it offers the following features:
 
-The depth-first search expands most promising nodes first. True maximum assignment is guaranteed when algorithm is allowed to complete. Otherwise, the assignment printed last may be used as a best guess.
+* A simple depth-first search algorithm for searching through the space of possible assignments.
+* _[In development]_ A `complete` flag for requiring solutions to fully spend agent budgets.
+* _[In development]_ A `fair` flag for breaking ties based on the lowest agent profit.
+* _[In development]_ Early stopping to deal with large search spaces.
 
-## Running the code
+## Things to keep in mind
 
-Solving your assignment problem is easy. Just specify your assignment problem (refer to `main.rs` for an example), then run it. An example problem specification is given, to make clear what syntax is expected.
+The generalized assignment problem is a very complex problem. The search space of possible assignments grows exponentially with the total agent and task budget. When dealing with large search spaces, the algorithm will likely be unable to completely search through all possibilities. Options for early stopping are in development.
+
+For now, it is recommended to use a logging utility, and track the progress of the program as it tries to find the maximum assignment. As new maximum assignments are found, these are logged at the `Info` level.
