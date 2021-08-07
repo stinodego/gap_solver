@@ -96,7 +96,7 @@ fn small_problem_spec() {
 }
 
 #[test]
-fn bigger_problem_spec() {
+fn medium_problem_spec() {
     // Setup
     let agents = ["a", "b", "c"];
     let tasks = ["1", "2", "3", "4", "5", "6"];

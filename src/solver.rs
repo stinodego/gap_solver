@@ -22,32 +22,32 @@ where
     let mut max_profit = open_set.iter().next().unwrap().profit();
 
     while !open_set.is_empty() {
-        // Explore the most promising node
-        let current = open_set
-            .iter()
-            .max_by(|x, y| x.profit().partial_cmp(&y.profit()).unwrap())
-            .unwrap()
-            .clone();
         trace!(
             "Set sizes -- open: {} - closed: {} - maximum: {}",
             open_set.len(),
             closed_set.len(),
             finished_set.len(),
         );
+        // Determine the most promising node
+        let current = open_set
+            .iter()
+            .max_by(|x, y| x.profit().partial_cmp(&y.profit()).unwrap())
+            .unwrap()
+            .clone();
+        closed_set.insert(open_set.take(&current).unwrap());
         trace!("Expanding -- {}", current);
 
-        // Remove current node from open set
-        open_set.remove(&current);
         // Determine all possible next assignments
-        match expand_node(&current, spec, &mut open_set, &closed_set) {
-            Ok(_) => {}
+        let result = expand_node(&current, spec, &closed_set);
+
+        // Update sets
+        match result {
+            Ok(new_nodes) => open_set.extend(new_nodes),
             Err(_) => {
                 debug!("Found finished assignment -- {}", current);
                 handle_finished_assignment(&current, &mut max_profit, &mut finished_set)
             }
         }
-        // Move node to the closed set
-        closed_set.insert(current);
     }
     finished_set
 }
@@ -70,16 +70,16 @@ where
 fn expand_node<'a, A, T, C, P>(
     assignment: &Assignment<'a, A, T, C, P>,
     spec: &GapSpec<A, T, C, P>,
-    open_set: &mut HashSet<Assignment<'a, A, T, C, P>>,
     closed_set: &HashSet<Assignment<A, T, C, P>>,
-) -> Result<(), &'a str>
+) -> Result<HashSet<Assignment<'a, A, T, C, P>>, &'a str>
 where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
     C: Num + SubAssign + PartialOrd + Copy + Debug,
     P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
 {
-    let mut finished = true;
+    let mut new_nodes = HashSet::new();
+
     for agent in spec.agents() {
         // Determine agent budget
         let agent_budget = assignment.agent_budget(agent);
@@ -104,18 +104,17 @@ where
 
         // Create assignments for each task
         for t in possible_tasks {
-            finished = false;
             let mut next = assignment.clone();
             next.assign(agent, &t).unwrap();
             if !closed_set.contains(&next) {
-                open_set.insert(next);
+                new_nodes.insert(next);
             }
         }
     }
-    if finished {
+    if new_nodes.is_empty() {
         Err("Assignment is finished and cannot be expanded.")
     } else {
-        Ok(())
+        Ok(new_nodes)
     }
 }
 
