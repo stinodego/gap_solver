@@ -7,13 +7,7 @@ use std::ops::{AddAssign, SubAssign};
 
 /// Define the assignment problem configuration
 #[derive(Debug)]
-pub struct GapSpec<A, T, C, P>
-where
-    A: Hash + Ord + Copy + Debug,
-    T: Hash + Ord + Copy + Debug,
-    C: Num + SubAssign + PartialOrd + Copy + Debug,
-    P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
-{
+pub struct GapSpec<A, T, C, P> {
     agents: HashSet<A>,
     tasks: HashSet<T>,
     agent_budgets: HashMap<A, C>,

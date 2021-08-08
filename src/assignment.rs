@@ -9,13 +9,7 @@ use std::ops::{AddAssign, SubAssign};
 /// An assignment of agents to tasks.
 /// Tracks agent and task budgets and the total profit.
 #[derive(Clone)]
-pub struct Assignment<'a, A, T, C, P>
-where
-    A: Hash + Ord + Copy + Debug,
-    T: Hash + Ord + Copy + Debug,
-    C: Num + SubAssign + PartialOrd + Copy + Debug,
-    P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
-{
+pub struct Assignment<'a, A, T, C, P> {
     assigned: BTreeMap<A, BTreeSet<T>>,
     agent_budgets: HashMap<A, C>,
     task_budgets: HashMap<T, C>,
