@@ -1,9 +1,8 @@
 use num::Num;
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
-use std::fmt::{Debug, Display};
+use std::fmt::Debug;
 use std::hash::Hash;
-use std::ops::{AddAssign, SubAssign};
 
 /// Define the assignment problem configuration
 #[derive(Debug)]
@@ -20,10 +19,10 @@ pub struct GapSpec<A, T, C, P> {
 
 impl<A, T, C, P> GapSpec<A, T, C, P>
 where
-    A: Hash + Ord + Copy + Debug,
-    T: Hash + Ord + Copy + Debug,
-    C: Num + SubAssign + PartialOrd + Copy + Debug,
-    P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
+    A: Hash + Ord + Copy,
+    T: Hash + Ord + Copy,
+    C: Num + PartialOrd + Copy,
+    P: Num + PartialOrd + Copy,
 {
     /// Initialize a new assignment problem specification.
     pub fn new<M, N>(agents: M, tasks: N) -> Self
@@ -67,7 +66,10 @@ where
     }
 
     /// Set the budget for a single agent
-    pub fn set_agent_budget(&mut self, agent: A, budget: C) -> Result<C, String> {
+    pub fn set_agent_budget(&mut self, agent: A, budget: C) -> Result<C, String>
+    where
+        A: Debug,
+    {
         if let Entry::Occupied(mut e) = self.agent_budgets.entry(agent) {
             Ok(e.insert(budget))
         } else {

@@ -4,7 +4,7 @@ use log::{debug, info, trace};
 use num::Num;
 use std::cmp::Ordering;
 use std::collections::HashSet;
-use std::fmt::{Debug, Display};
+use std::fmt::Debug;
 use std::hash::Hash;
 use std::ops::{AddAssign, SubAssign};
 
@@ -13,8 +13,8 @@ pub fn solve<A, T, C, P>(spec: &GapSpec<A, T, C, P>) -> HashSet<Assignment<A, T,
 where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
-    C: Num + SubAssign + PartialOrd + Copy + Debug,
-    P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
+    C: Num + SubAssign + PartialOrd + Copy,
+    P: Num + AddAssign + PartialOrd + Copy + Debug,
 {
     let mut open_set: HashSet<Assignment<A, T, C, P>> = init_open_set(spec);
     let mut closed_set: HashSet<Assignment<A, T, C, P>> = HashSet::new();
@@ -55,10 +55,10 @@ where
 /// Initialize set of assignments to explore
 fn init_open_set<A, T, C, P>(spec: &GapSpec<A, T, C, P>) -> HashSet<Assignment<A, T, C, P>>
 where
-    A: Hash + Ord + Copy + Debug,
-    T: Hash + Ord + Copy + Debug,
-    C: Num + SubAssign + PartialOrd + Copy + Debug,
-    P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
+    A: Hash + Ord + Copy,
+    T: Hash + Ord + Copy,
+    C: Num + SubAssign + PartialOrd + Copy,
+    P: Num + AddAssign + PartialOrd + Copy,
 {
     let mut open_set = HashSet::new();
     let start = Assignment::from_spec(spec);
@@ -73,10 +73,10 @@ fn expand_node<'a, A, T, C, P>(
     closed_set: &HashSet<Assignment<A, T, C, P>>,
 ) -> Result<HashSet<Assignment<'a, A, T, C, P>>, &'a str>
 where
-    A: Hash + Ord + Copy + Debug,
-    T: Hash + Ord + Copy + Debug,
-    C: Num + SubAssign + PartialOrd + Copy + Debug,
-    P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
+    A: Hash + Ord + Copy,
+    T: Hash + Ord + Copy,
+    C: Num + SubAssign + PartialOrd + Copy,
+    P: Num + AddAssign + PartialOrd + Copy,
 {
     let mut new_nodes = HashSet::new();
 
@@ -126,8 +126,8 @@ fn handle_finished_assignment<'a, A, T, C, P>(
 ) where
     A: Hash + Ord + Copy + Debug,
     T: Hash + Ord + Copy + Debug,
-    C: Num + SubAssign + PartialOrd + Copy + Debug,
-    P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
+    C: Num + SubAssign + PartialOrd + Copy,
+    P: Num + AddAssign + PartialOrd + Copy + Debug,
 {
     match assignment.profit().partial_cmp(max_profit) {
         Some(Ordering::Equal) => {

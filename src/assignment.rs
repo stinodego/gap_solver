@@ -19,10 +19,10 @@ pub struct Assignment<'a, A, T, C, P> {
 
 impl<'a, A, T, C, P> Assignment<'a, A, T, C, P>
 where
-    A: Hash + Ord + Copy + Debug,
-    T: Hash + Ord + Copy + Debug,
-    C: Num + SubAssign + PartialOrd + Copy + Debug,
-    P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
+    A: Hash + Ord + Copy,
+    T: Hash + Ord + Copy,
+    C: Num + SubAssign + PartialOrd + Copy,
+    P: Num + AddAssign + PartialOrd + Copy,
 {
     /// Create an Assignment from the given problem specification.
     pub fn from_spec(spec: &'a GapSpec<A, T, C, P>) -> Self {
@@ -123,10 +123,8 @@ where
 /// the rest can be derived from the problem specification
 impl<'a, A, T, C, P> Hash for Assignment<'a, A, T, C, P>
 where
-    A: Hash + Ord + Copy + Debug,
-    T: Hash + Ord + Copy + Debug,
-    C: Num + SubAssign + PartialOrd + Copy + Debug,
-    P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
+    A: Hash,
+    T: Hash,
 {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.assigned.hash(state);
@@ -137,10 +135,8 @@ where
 /// the rest can be derived from the problem specification
 impl<'a, A, T, C, P> PartialEq for Assignment<'a, A, T, C, P>
 where
-    A: Hash + Ord + Copy + Debug,
-    T: Hash + Ord + Copy + Debug,
-    C: Num + SubAssign + PartialOrd + Copy + Debug,
-    P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
+    A: Ord,
+    T: Ord,
 {
     fn eq(&self, other: &Self) -> bool {
         self.assigned == other.assigned
@@ -148,31 +144,28 @@ where
 }
 impl<'a, A, T, C, P> Eq for Assignment<'a, A, T, C, P>
 where
-    A: Hash + Ord + Copy + Debug,
-    T: Hash + Ord + Copy + Debug,
-    C: Num + SubAssign + PartialOrd + Copy + Debug,
-    P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
+    A: Ord,
+    T: Ord,
 {
 }
 
 impl<'a, A, T, C, P> Display for Assignment<'a, A, T, C, P>
 where
-    A: Hash + Ord + Copy + Debug,
-    T: Hash + Ord + Copy + Debug,
-    C: Num + SubAssign + PartialOrd + Copy + Debug,
-    P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
+    A: Debug,
+    T: Debug,
+    P: Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?} -- {}", self.assigned, self.profit)
+        write!(f, "{:?} -- {:?}", self.assigned, self.profit)
     }
 }
 
 impl<'a, A, T, C, P> Debug for Assignment<'a, A, T, C, P>
 where
-    A: Hash + Ord + Copy + Debug,
-    T: Hash + Ord + Copy + Debug,
-    C: Num + SubAssign + PartialOrd + Copy + Debug,
-    P: Num + AddAssign + PartialOrd + Copy + Display + Debug,
+    A: Debug,
+    T: Debug,
+    C: Debug,
+    P: Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Assignment")
